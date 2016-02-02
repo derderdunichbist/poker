@@ -1,6 +1,5 @@
 package Backend;
 
 public enum eRound {
-	PREFLOP,FLOP,TURN,RIVER;
-
+	PREFLOP, FLOP, TURN, RIVER;
 }
