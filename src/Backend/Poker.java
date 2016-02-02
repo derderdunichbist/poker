@@ -11,32 +11,39 @@ public class Poker {
 	private Blind bigBlind;
 	private int smallBlindValue = 50;
 	private ArrayList<Card> carddeck;
-	private ArrayList<Seat> seatedPlayers;
+	private ArrayList<Seat> seatedPlayers; //all players that are currently seated on the table
+	private ArrayList<Seat> activePlayers; //the players that are still participating in the ongoing round (not folded)
+	private eRound currentRound;
 	
 	public Poker(){
-		smallBlind = new Blind(smallBlindValue);
-		bigBlind = new Blind(2*smallBlindValue);
-		seatedPlayers = new ArrayList<Seat>(6);
-		
+
+		this.seatedPlayers = new ArrayList<Seat>(6);
+		activePlayers = new ArrayList<Seat>(6);
 		setCarddeck(new ArrayList<Card>(52));
+		
 		init();
 		
-		
-		//For testing-purposes, we will create the players here for now:
-		this.addPlayer(new Seat("Benni"));
-		this.addPlayer(new Seat("DeGagBenni"));
-		this.addPlayer(new Seat("leGrandBrunBrun"));
-		this.addPlayer(new Seat("BenniDiGaga"));
-		this.addPlayer(new Seat("Berndsaftstinker"));
-		
-		//Syso-Test Are players added properly? 
-		System.out.println(seatedPlayers.toString());
 	}
 		
 	//Following listed methods are not yet fully determined
 	//neither in name,implementation nor order! ------{
 	public void init(){
-		resetDeck();
+		
+		smallBlind = new Blind(smallBlindValue);
+		bigBlind = new Blind(2*smallBlindValue);
+		
+		//For testing-purposes only: players created here for now!
+		this.addPlayer(new Seat("Benni"));
+		this.addPlayer(new Seat("DeGagBenni"));
+		this.addPlayer(new Seat("leGrandBrunBrun"));
+		this.addPlayer(new Seat("BenniDiGaga"));
+		this.addPlayer(new Seat("Berndsaftstinker"));
+		this.addPlayer(new Seat("Berndsaftgarotzfotz"));
+		
+		//Syso-Test Are players added properly? 
+		System.out.println("currently Seated players are: "+seatedPlayers.toString());
+		
+		newRound();
 	}
 	
 	public void resetDeck(){
@@ -56,10 +63,35 @@ public class Poker {
 		//test-syso: does deck work properly?
 		System.out.println(carddeck);
 	}
-	
-	
-	public void resetRound(){
-		resetDeck();
+
+	//A new round begins after a complete hand is finished
+	public void newRound(){
+		
+		resetDeck(); 
+		setCurrentRound(eRound.PREFLOP);
+		
+		//remove blinds from players
+		for(Seat s: seatedPlayers){
+			s.setBlind(null);
+		}
+		
+		//someone gets the blinds..............................................[!!!!!]
+		//impl: random number 1-6 gets SB, next index gets BB
+
+		
+		//set all players currently on the table to participate in the upcoming round
+		activePlayers.clear();
+		
+		//{----------------------------------FIRST, LOOK FOR SMALLBLIND, SEAT HIM FIRST!---------------}
+		for(Seat s: seatedPlayers){
+			if(s.getBlind!=null){
+				
+			}
+			//activePlayers.add(s);
+		}
+		
+		//test-syso
+		System.out.println("Still participating in the current round are: "+ activePlayers);
 	}
 	
 	public void dealHands(){
@@ -73,14 +105,11 @@ public class Poker {
 	public void bettingRound(){
 		
 	}
-	
-	public void beginRound(){
-		
-	}
+
 	//}-------
 	
 	public void addPlayer(Seat s){
-		if(s!=null && this.seatedPlayers.size()<5){
+		if(s!=null && this.seatedPlayers.size()<6){
 			seatedPlayers.add(s);	
 		}
 		else{
@@ -90,6 +119,9 @@ public class Poker {
 	
 	public void removePlayer(Seat s){
 		seatedPlayers.remove(s);
+		
+		int amountOfPlayers = Seat.getAmountOfPlayers()-1;
+		Seat.setAmountOfPlayers(amountOfPlayers);
 	}
 
 	public int getPot() {
@@ -132,6 +164,14 @@ public class Poker {
 
 	public void setCarddeck(ArrayList<Card> carddeck) {
 		this.carddeck = carddeck;
+	}
+
+	public eRound getCurrentRound() {
+		return currentRound;
+	}
+
+	public void setCurrentRound(eRound currentRound) {
+		this.currentRound = currentRound;
 	}
 
 }

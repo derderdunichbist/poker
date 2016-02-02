@@ -5,6 +5,7 @@ public class Seat {
 		private String playerName;
 		private int seatNumber;
 		private static int amountOfPlayers=0;
+		private Blind blind;
 		private int chips;
 		private int bettedAmount=0; //amount of bets in $ (in current round!); is 0 on roundstart
 		
@@ -17,6 +18,14 @@ public class Seat {
 			else{
 				throw new RuntimeException("No more than 6 Players!");
 			}
+		}
+		
+		public static int getAmountOfPlayers() {
+			return amountOfPlayers;
+		}
+
+		public static void setAmountOfPlayers(int amountOfPlayers) {
+			Seat.amountOfPlayers = amountOfPlayers;
 		}
 		
 		public void call(){
@@ -61,6 +70,14 @@ public class Seat {
 		public String toString(){
 			return playerName + " on seat "+seatNumber;
 			
+		}
+
+		public Blind getBlind() {
+			return blind;
+		}
+
+		public void setBlind(Blind blind) {
+			this.blind = blind;
 		}
 
 }
