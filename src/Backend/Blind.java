@@ -15,7 +15,7 @@ public class Blind {
 		}
 		else if(amountOfBlinds==2){
 			this.setType("bigBlind");
-			this.setValue(blindValue);
+			this.setValue(2*blindValue);
 		}
 		else{
 			throw new RuntimeException("You can only create 2 Blinds!");
@@ -34,6 +34,7 @@ public class Blind {
 		return value;
 	}
 //leave this public for now, in case of dynamically changing value later on		
+	//TODO Big Blind implementation
 	public void setValue(int value) {
 		this.value = value;
 	}

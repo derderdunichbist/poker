@@ -30,7 +30,7 @@ public class Poker {
 	public void init(){
 		
 		smallBlind = new Blind(smallBlindValue);
-		bigBlind = new Blind(2*smallBlindValue);
+		bigBlind = new Blind(smallBlindValue);
 		
 		//For testing-purposes only: players created here for now!
 		this.addPlayer(new Seat("Benni"));
