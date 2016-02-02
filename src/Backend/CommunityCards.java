@@ -23,7 +23,7 @@ public class CommunityCards {
 		Card[] cards = (Card[])this.communityCards.toArray();
 		Card[] flop = new Card[3];
 		
-			if(cards.length > 2){
+			if(cards != null && cards.length > 2){
 				
 			for(int i=0; i<flop.length; i++){
 				flop[i] = (Card)cards[i];
