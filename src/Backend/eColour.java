@@ -1,5 +1,5 @@
 package Backend;
 
-public class eColour {
-
+public enum eColour {
+TWO,THREE,FOUR,FIVE,SIX,SEVEN,EIGHT,NINE,TEN,JACK,QUEEN,KING,ACE;
 }

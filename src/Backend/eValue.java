@@ -1,5 +1,5 @@
 package Backend;
 
-public class eValue {
-
+public enum eValue {
+CLUBS,DIAMONDS,HEARTS,SPADES;
 }
