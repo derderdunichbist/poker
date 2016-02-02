@@ -1,4 +1,6 @@
-package Backend;
+package Interfaces;
+
+import Backend.Poker;
 
 public interface iController {
 

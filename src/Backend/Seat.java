@@ -10,9 +10,12 @@ public class Seat {
 	private Blind blind;
 	private int chips;
 	private int bettedAmount = 0; // amount of bets in $ (in current round!); is 0 on roundstart
-	private ArrayList<Card> cardsOnHand = new ArrayList<Card>(); // Array List used instead of Array for easy emptying
+	private ArrayList<Card> cardsOnHand; // Array List used instead of Array for easy emptying
 
 	public Seat(String playerName) {
+		
+		this.cardsOnHand = new ArrayList<Card>(2);
+		
 		if (amountOfPlayers < 6 && playerName != null) {
 			setName(playerName);
 			amountOfPlayers++;
@@ -86,12 +89,12 @@ public class Seat {
 		return cardsOnHand;
 	}
 
-	public void setCards(ArrayList<Card> cards) {
+	private void setCards(ArrayList<Card> cards) {
 		this.cardsOnHand = cards;
 	}
 	
 	public void addCard(Card card){
-		if (cardsOnHand != null && cardsOnHand.size() <= 2) {
+		if (cardsOnHand != null && cardsOnHand.size() < 2) {
 			cardsOnHand.add(card);
 		} else {
 			throw new RuntimeException ("Cards list is either null or already full (2 cards)!");

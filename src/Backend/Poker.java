@@ -2,6 +2,9 @@ package Backend;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
+
+import Interfaces.iController;
 
 public class Poker implements iController {
 
@@ -11,17 +14,18 @@ public class Poker implements iController {
 	private Blind bigBlind;
 	private int smallBlindValue = 50;
 	private ArrayList<Card> carddeck;
-	
+
 	/**
 	 * all players that are currently seated on the table
 	 */
 	private ArrayList<Seat> seatedPlayers;
-	
+
 	/**
-	 * the players that are still participating in the ongoing round (not folded)
+	 * the players that are still participating in the ongoing round (not
+	 * folded)
 	 */
 	private ArrayList<Seat> activePlayers;
-	
+
 	private eRound currentRound;
 
 	public Poker() {
@@ -29,12 +33,14 @@ public class Poker implements iController {
 		this.seatedPlayers = new ArrayList<Seat>(6);
 		this.activePlayers = new ArrayList<Seat>(6);
 		this.setCarddeck(new ArrayList<Card>(52));
-
+		this.currentRound = eRound.INITIALIZE;
 		this.init();
+		
 
 	}
 
-	// Following listed methods are not yet fully determined neither in name,implementation nor order! ------{
+	// Following listed methods are not yet fully determined neither in
+	// name,implementation nor order! ------{
 	public void init() {
 
 		smallBlind = new Blind(smallBlindValue);
@@ -46,7 +52,21 @@ public class Poker implements iController {
 		this.addPlayer(new Seat("leGrandBrunBrun"));
 		this.addPlayer(new Seat("BenniDiGaga"));
 		this.addPlayer(new Seat("Berndsaftstinker"));
-		this.addPlayer(new Seat("Berndsaftgarotzfotz"));
+		this.addPlayer(new Seat("Berndsaftgagrotzfotz"));
+
+		// Give a random player small- and bigblind
+		Random rand = new Random();
+		int index = rand.nextInt((seatedPlayers.size() - 1) - 0 + 0) + 0;
+		Seat sBPlayer = seatedPlayers.get(index);
+		sBPlayer.setBlind(this.smallBlind);
+
+		if (index < (seatedPlayers.size() - 1)) {
+			index++;
+		} else {
+			index = 0;
+		}
+		Seat bBPlayer = seatedPlayers.get(index);
+		bBPlayer.setBlind(this.bigBlind);
 
 		// Syso-Test Are players added properly?
 		System.out.println("currently Seated players are: " + seatedPlayers.toString());
@@ -74,47 +94,93 @@ public class Poker implements iController {
 
 	// A new round begins after a complete hand is finished
 	public void newRound() {
+		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind
+								// next
 
 		resetDeck();
-		setCurrentRound(eRound.PREFLOP);
-
-		// remove blinds from players
-		for (Seat s : this.seatedPlayers) {
+		activePlayers.clear();
+		
+		if(this.currentRound!=eRound.INITIALIZE){
+			
+		
+		for (Seat s : this.seatedPlayers) { // identify old smallBlindPlayer and
+											// delete current Blindpositions
+			if (s.getBlind() != null && s.getBlind().getType().equals("smallBlind")) {
+				newSmallBlind = (seatedPlayers.indexOf(s)) + 1;
+			}
 			s.setBlind(null);
 		}
-
-		// someone gets the blinds..............................................[!!!!!]
-		// impl: random number 1-6 gets SB, next index gets BB
-
-		// set all players currently on the table to participate in the upcoming round
-		activePlayers.clear();
-
-		// {----------------------------------FIRST, LOOK FOR SMALLBLIND, SEAT HIM FIRST!---------------}
-		for (Seat s : this.seatedPlayers) {
-			if (s.getBlind() != null) {
-
-			}
-			// activePlayers.add(s);
+		
+		
+		// move the Small and Bigblind to next position:
+		this.seatedPlayers.get(newSmallBlind).setBlind(this.smallBlind);
+		this.seatedPlayers.get(newSmallBlind + 1).setBlind(this.bigBlind);
 		}
-
-		// test-syso
-		System.out.println("Still participating in the current round are: " + activePlayers);
+		
+		setCurrentRound(eRound.PREFLOP);
+		// Identify which player has Small-Blind
+		Seat sBPlayer = null;
+		for (Seat seat : seatedPlayers) {
+			if (seat.getBlind() != null && seat.getBlind().getType().equals("smallBlind")) {
+				sBPlayer = seat;
+				break;
+			}
+		}
+		int index = seatedPlayers.indexOf(sBPlayer);
+		// Set all participating players for the next round. Starting in order
+		// with Small and Bigblind
+		for (int i = 0; i < seatedPlayers.size(); i++) {
+			this.activePlayers.add(seatedPlayers.get(index));
+			if (index == seatedPlayers.size() - 1) {
+				index = 0;
+			} else {
+				index++;
+			}
+		}
+		dealHands();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void dealHands() {
+		System.out.println(activePlayers);
+		if (this.currentRound == eRound.PREFLOP) {
+			int seatCounter = 0;
+			for (int i = 0; i < 2; i++) {
+				for (int j = 0; j < activePlayers.size(); j++) {
+					activePlayers.get(seatCounter).addCard(carddeck.get(0));
+					this.removeCard();
 
+					// Ring-construct
+					if (seatCounter == seatedPlayers.size() - 1) {
+						seatCounter = 0;
+					} else {
+						seatCounter++;
+					}
+				}
+			}
+			bettingRound();
+		}
+		// TODO implement all cases: Flop, Turn, River and properly deal community - cards
 	}
-
-	private void burnCard() {
+	
+	//removeDealtCard and burnCard with same implementation became removeCard
+	private void removeCard() { 
 		carddeck.remove(0);
 	}
 
 	public void bettingRound() {
+		// TODO remove this, this is only here for testing-purposes:
+		for (Seat s : activePlayers) {
+			ArrayList<Card> holeCards = s.getCards();
+			System.out.println("Spieler: " + s.getName());
+			for (Card holeCard : holeCards)
+				System.out.println("hält: " + holeCard.getName());
+			if(s.getBlind()!=null){
+				System.out.println("Spieler: "+ s.getName() +" hält den "+ s.getBlind().getType());
+			}
+		}
 
+		// TODO implementation of betting-Round algorithm!
 	}
 
 	public void addPlayer(Seat s) {
@@ -131,6 +197,8 @@ public class Poker implements iController {
 		int amountOfPlayers = Seat.getAmountOfPlayers() - 1;
 		Seat.setAmountOfPlayers(amountOfPlayers);
 	}
+	
+	
 
 	public int getPot() {
 		return pot;
@@ -183,46 +251,10 @@ public class Poker implements iController {
 		this.currentRound = currentRound;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void beginRound() {
-		Seat smallBlindSeat = null;
-		for(Seat seat : activePlayers) {
-			if(seat.getBlind().getType().equals("smallBlind")) {
-				smallBlindSeat = seat;
-				break;
-			}
-		}
-		int index = seatedPlayers.indexOf(smallBlindSeat);
-		dealClockwise(index); //TODO Clockwise or Counter-Clockwise?
-	}
+	public void beginRound() { //INTERFACE METHOD!
 
-	//TODO Clockwise or Counter-Clockwise?
-	/**
-	 * Deals 1 card clockwise to each player twice
-	 * @param index Number of player in list to begin with
-	 */
-	private void dealClockwise(int index) {
-		int seatCounter = index;
-		for(int i = 0; i < 2; i++) {
-			for(int j = 0; j < activePlayers.size() - 1; j++) {
-				activePlayers.get(seatCounter).addCard(carddeck.get(0));
-				this.removeDealtCard();
-				
-				//Ring-construct
-				if(seatCounter == seatedPlayers.size() - 1 ) {
-					seatCounter = 0;
-				} else {
-					seatCounter ++;
-				}
-			}
-		}
-	}
-
-	private void removeDealtCard() {
-		carddeck.remove(0);
+		
 	}
 
 }
