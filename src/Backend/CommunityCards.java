@@ -11,10 +11,8 @@ public class CommunityCards {
 	}
 	
 	public void addCard(Card c){
-		if(communityCards.size()<5){
-			if(c != null){
+		if(communityCards.size()<5 && c != null){
 				communityCards.add(c);
-			}
 		}
 		else{
 			throw new RuntimeException("Cannot set Card. Card is either null or already 5 ComCards!");
