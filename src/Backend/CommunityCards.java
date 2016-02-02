@@ -25,7 +25,7 @@ public class CommunityCards {
 		
 			if(cards != null && cards.length > 2){
 				
-			for(int i=0; i<flop.length; i++){
+			for(int i=0; i<flop.length-1; i++){
 				flop[i] = (Card)cards[i];
 			}
 			 return flop;

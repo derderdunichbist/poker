@@ -57,5 +57,10 @@ public class Seat {
 		public void setChips(int chips) {
 			this.chips = chips;
 		}
+		@Override
+		public String toString(){
+			return playerName + " on seat "+seatNumber;
+			
+		}
 
 }
