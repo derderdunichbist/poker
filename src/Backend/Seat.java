@@ -43,7 +43,7 @@ public class Seat {
 	}
 	
 	public void act(){
-		System.out.println("Player "+this.getName()+" it is your turn! "+p.getToCall() +" to call!");
+		System.out.println("Player "+this.getName()+" it is your turn! "+(p.getToCall()-(this.bettedAmount))+" to call!");
 		//TODO: This is only temporary. As well as the checking/folding with 0!
 		System.out.println("enter your bet or '0' to check/fold :");
 		
@@ -66,7 +66,7 @@ public class Seat {
 	}
 
 	public void call(int amount) {
-			this.bettedAmount = amount;
+			this.bettedAmount += amount;
 			this.setLastMove("call");
 			System.out.println("Player "+this.getName()+" called!");
 	}
@@ -75,7 +75,7 @@ public class Seat {
 		//TODO: the current bet is not yet connected to the players stack or the 
 		//TODO: poker-games pot!
 		
-			this.bettedAmount = amount;
+			this.bettedAmount += amount;
 			p.setToCall(amount);
 			this.setLastMove("bet");
 			System.out.println("Player "+this.getName()+" raised to"+amount);
@@ -85,13 +85,26 @@ public class Seat {
 			
 			//Delete old lastPlayer
 			for(Seat player: activePlayers){
-				if(player.isLastPlayer==true){
 					player.isLastPlayer=false;
-				}
 			}
-			//set new lastPlayer to lastToBet-Player: Important to determine end of a betting round
+			// (this) is the last player to make a bet
 			int lastToBetPlayerPosition = activePlayers.indexOf(this);
-			activePlayers.get(lastToBetPlayerPosition).isLastPlayer=true;
+			int lastPlayerPosition;
+			
+			//player left to lastToBet is then the last Player:
+			if(lastToBetPlayerPosition == 0){
+				lastPlayerPosition = 5;
+			}
+			else{
+				lastPlayerPosition = lastToBetPlayerPosition-1;
+			}
+			
+			activePlayers.get(lastPlayerPosition).isLastPlayer=true;
+			
+			for(Seat player: activePlayers){
+				System.out.println(player.isLastPlayer);
+		}
+			
 	}
 
 	private void fold() {

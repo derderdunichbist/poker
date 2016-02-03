@@ -217,7 +217,7 @@ public class Poker implements iController {
 				System.out.println("Spieler: "+ s.getName() +" hält den "+ s.getBlind().getType());
 			}
 		}
-		
+		//get me small- and bigBlindPlayer; actingPlayer represents player to currently call/raise/fold
 		Seat sBPlayer = this.activePlayers.get(0);
 		Seat bBPlayer = this.activePlayers.get(1);
 		Seat actingPlayer;
@@ -228,20 +228,40 @@ public class Poker implements iController {
 			actingPlayer = this.activePlayers.get(2);
 		}
 		else{
-			actingPlayer = sBPlayer;
+			actingPlayer = sBPlayer; //in case we are not in Preflop, the first player to act as the round begins is always the smallBlindPlayer
 		}
 		//TODO temporarily, raise/check/calls are realized by console-input
-		actingPlayer.act();
+		//calls a method act() in which the actingPlayer either folds/calls or raises
+		int nextPlayerIndex;
+		Seat priorPlayer=null; //last acting player : needed to check the move & position of the last to act player
+		
+		while (priorPlayer == null || priorPlayer.isLastPlayer() == false || priorPlayer.getLastMove() != "call") {
+			actingPlayer.act();
+			int currentPlayerIndex = (this.activePlayers.indexOf(actingPlayer));
+			if (currentPlayerIndex == 5) {
+				nextPlayerIndex = 0;
+			} else {
+				nextPlayerIndex = currentPlayerIndex+1;
+			}
+			//this was the last player to act
+			priorPlayer = this.activePlayers.get(currentPlayerIndex);
+			//set acting player to next player to act
+			actingPlayer = this.activePlayers.get(nextPlayerIndex);
+			
+			System.out.println(priorPlayer + priorPlayer.getLastMove() + " "+priorPlayer.isLastPlayer());
+			System.out.println(actingPlayer + actingPlayer.getLastMove() + " "+actingPlayer.isLastPlayer());
+		}
+		
+		
 		
 		//TODO: determine next acting Player (again, get the index of currently acting player and implement ring-type selection
 		//TODO: after implementation of determining next player, create a loop for the betting round (right now, its only 1 player to act once)
-		
-		if(actingPlayer.getLastMove().equals("call") && actingPlayer.isLastPlayer()==true){
+
 			//test-Syso
 			System.out.println("nextRound!");
-			newRound();
+			//newRound();
 			// TODO reset bettedAmount for every round (probably better to do in newRound)
-		}
+		
 	}
 
 	public void addPlayer(Seat s) {
