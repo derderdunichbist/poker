@@ -37,7 +37,6 @@ public class Poker implements iController {
 		this.currentRound = eRound.INITIALIZE;
 		this.init();
 		this.comCards = new CommunityCards();
-		
 
 	}
 
@@ -49,12 +48,12 @@ public class Poker implements iController {
 		bigBlind = new Blind(smallBlindValue);
 
 		// For testing-purposes only: players created here for now!
-		this.addPlayer(new Seat("Benni",this));
-		this.addPlayer(new Seat("DeGagBenni",this));
-		this.addPlayer(new Seat("leGrandBrunBrun",this));
-		this.addPlayer(new Seat("BenniDiGaga",this));
-		this.addPlayer(new Seat("Berndsaftstinker",this));
-		this.addPlayer(new Seat("Berndsaftgagrotzfotz",this));
+		this.addPlayer(new Seat("Benni", this));
+		this.addPlayer(new Seat("DeGagBenni", this));
+		this.addPlayer(new Seat("leGrandBrunBrun", this));
+		this.addPlayer(new Seat("BenniDiGaga", this));
+		this.addPlayer(new Seat("Berndsaftstinker", this));
+		this.addPlayer(new Seat("Berndsaftgagrotzfotz", this));
 
 		// Give a random player small- and bigblind
 		Random rand = new Random();
@@ -102,31 +101,55 @@ public class Poker implements iController {
 
 	// A new round begins after a complete hand is finished
 	public void newRound() {
-		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind
-								// next
-		
-	
-		resetDeck();
+		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind next
+		int newBigBlind = 0;	// Saves index of the seat to receive bigBlind next					
+
+		resetDeck();//Fill carddeck with 52 cards again, in random order
 		activePlayers.clear();
-		
-		if(this.currentRound!=eRound.INITIALIZE){
-			
-		this.comCards.reset();
-		for (Seat s : this.seatedPlayers) { // identify old smallBlindPlayer and
-											// delete current Blindpositions
-			if (s.getBlind() != null && s.getBlind().getType().equals("smallBlind")) {
-				newSmallBlind = (seatedPlayers.indexOf(s)) + 1;
+
+		if (this.currentRound != eRound.INITIALIZE) { // This is not being done
+														// in the first round
+														// (initialize-phase),
+														// as blinds are
+														// randomly assigned
+														// then
+
+			this.comCards.reset();
+			for (Seat s : this.seatedPlayers) { // identify old smallBlindPlayer
+												// and delete current
+												// Blindpositions
+				if (s.getBlind() != null && s.getBlind().getType().equals("smallBlind")) { // Who
+																							// has
+																							// the
+																							// smallBlind?
+					newSmallBlind = (seatedPlayers.indexOf(s));// determine seat
+																// of old
+																// smallBlind
+				}
+				s.setBlind(null);
 			}
-			s.setBlind(null);
+			//ring-type identification for next player's index that receives smallBlind next
+			if (newSmallBlind == this.seatedPlayers.size() - 1) {
+				newSmallBlind = 0;
+			} else {
+				newSmallBlind = newSmallBlind + 1;
+			}
+
+			
+			this.seatedPlayers.get(newSmallBlind).setBlind(this.smallBlind);//move the smallBlind to next position
+
+			//ring-type identification for next player's index that receives bigBlind next
+			newBigBlind = newSmallBlind;
+			if (newBigBlind == this.seatedPlayers.size() - 1) {
+				newBigBlind = 0;
+			} else {
+				newBigBlind = newBigBlind + 1;
+			}
+			this.seatedPlayers.get(newBigBlind).setBlind(this.bigBlind);//move the BigBlind to next position
 		}
+
+		setCurrentRound(eRound.PREFLOP); //When a new round begins, round-state is Preflop!
 		
-		
-		// move the Small and Bigblind to next position:
-		this.seatedPlayers.get(newSmallBlind).setBlind(this.smallBlind);
-		this.seatedPlayers.get(newSmallBlind + 1).setBlind(this.bigBlind);
-		}
-		
-		setCurrentRound(eRound.PREFLOP);
 		// Identify which player has Small-Blind
 		Seat sBPlayer = null;
 		for (Seat seat : seatedPlayers) {
@@ -135,28 +158,31 @@ public class Poker implements iController {
 				break;
 			}
 		}
-		int index = seatedPlayers.indexOf(sBPlayer);
+		int index = seatedPlayers.indexOf(sBPlayer); //get index of smallBlindPlayer
+		
 		// Set all participating players for the next round. Starting in order
 		// with Small and Bigblind
 		for (int i = 0; i < seatedPlayers.size(); i++) {
-			this.activePlayers.add(seatedPlayers.get(index));
+			this.activePlayers.add(seatedPlayers.get(index)); //add Players starting with smallBlind
 			if (index == seatedPlayers.size() - 1) {
 				index = 0;
 			} else {
 				index++;
 			}
 		}
-		dealHands();
+		dealHands(); //Call dealHands to start dealing hands to each player!
 	}
-
+	/**
+	 * dealHands(): Deals all respective cards available in the game: Holecards and communitycards 
+	 */
 	@Override
 	public void dealHands() {
-		switch(this.currentRound){
-		case ROUNDEND:
+		switch (this.currentRound) {//Either deal hole-cards or community-hands (given each case)
+		case ROUNDEND: //all betting has been done, the winner has to be determined by showdown
 			identifyHands();
 			break;
-		
-		case PREFLOP: 
+
+		case PREFLOP:
 			int seatCounter = 0;
 			for (int i = 0; i < 2; i++) {
 				for (int j = 0; j < activePlayers.size(); j++) {
@@ -170,101 +196,108 @@ public class Poker implements iController {
 				}
 			}
 			break;
-		
+
 		case FLOP:
-			removeCard(); //burn 1 card 
+			removeCard(); // burn 1 card
 			this.comCards.addCard(this.carddeck.remove(0));
 			this.comCards.addCard(this.carddeck.remove(0));
 			this.comCards.addCard(this.carddeck.remove(0));
-			
+
 			break;
-			
+
 		case TURN:
-			removeCard(); //burn 1 card 
+			removeCard(); // burn 1 card
 			this.comCards.addCard(this.carddeck.remove(0));
 			break;
-		
+
 		case RIVER:
-			removeCard(); //burn 1 card 
+			removeCard(); // burn 1 card
 			this.comCards.addCard(this.carddeck.remove(0));
 			break;
-				
+
 		}
 		bettingRound();
 	}
-	
+
 	private void identifyHands() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	//removeDealtCard and burnCard with same implementation became removeCard
-	private void removeCard() { 
+	// removeDealtCard and burnCard with same implementation became removeCard
+	private void removeCard() {
 		carddeck.remove(0);
 	}
-
+	
+	/**
+	 * bettingRound(): manages all betting of players; Also manages who is still active for the current and upcoming rounds 	  
+	 */
 	public void bettingRound() {
-		// TODO remove this, this is only here for testing-purposes:
+
+		//This block has no functionality. It is simply there to see who holds which card for the time being, as well as who is assigned with a blind.
 		System.out.println(" ");
 		for (Seat s : activePlayers) {
 			ArrayList<Card> holeCards = s.getCards();
-			System.out.print("Spieler " + s.getName()+" hält: ");
+			System.out.print("Spieler " + s.getName() + " hält: ");
 			for (Card holeCard : holeCards)
-				System.out.print(" "+holeCard.getName()+", ");
+				System.out.print(" " + holeCard.getName() + ", ");
 			System.out.println(" ");
-			if(s.getBlind()!=null){
-				System.out.println("Spieler: "+ s.getName() +" hält den "+ s.getBlind().getType());
-			
+			if (s.getBlind() != null) {
+				System.out.println("Spieler: " + s.getName() + " hält den " + s.getBlind().getType());
+
 			}
 
 		}
 		System.out.println(" ");
-		//get me small- and bigBlindPlayer; actingPlayer represents player to currently call/raise/fold
+		
+		//Get the SmallBlind and Bigblind Players
 		Seat sBPlayer = this.activePlayers.get(0);
 		Seat bBPlayer = this.activePlayers.get(1);
-		Seat actingPlayer;
-		
-		if(this.currentRound == eRound.PREFLOP){
+		Seat actingPlayer; //the player that is currently acting: folding,calling(checking),raising
+
+		//If current round is Preflop, Small and Bigblinds have to be paid, the first player to then act sits behind the BigBlind
+		if (this.currentRound == eRound.PREFLOP) {
 			sBPlayer.bet(this.smallBlind.getValue());
 			bBPlayer.bet(this.bigBlind.getValue());
 			actingPlayer = this.activePlayers.get(2);
+		} else {//in any other case, every round begins with the smallBlind to act first (or, if folded in order)
+			actingPlayer = sBPlayer; 
+									
 		}
-		else{
-			actingPlayer = sBPlayer; //in case we are not in Preflop, the first player to act as the round begins is always the smallBlindPlayer
-		}
-		//TODO temporarily, raise/check/calls are realized by console-input
-		//calls a method act() in which the actingPlayer either folds/calls or raises
+
 		int nextPlayerIndex;
-		Seat priorPlayer=null; //last acting player : needed to check the move & position of the last to act player
-		
+		Seat priorPlayer = null; //placeholder: Mainly used to for example determine whether or not the previous player did call & was last player to act in the current round
+
+		//A loop that continues until the last player to respond to a raise will call or fold
 		while (priorPlayer == null || priorPlayer.isLastPlayer() == false || priorPlayer.getLastMove() != "call") {
-			
-			if(priorPlayer != null && priorPlayer.getLastMove().equals("fold")){ //this player folded in the previous round
-				
-				if(this.activePlayers.get(this.activePlayers.indexOf(priorPlayer)).isLastPlayer()==true){
+
+			if (priorPlayer != null && priorPlayer.getLastMove().equals("fold")) { //in case the previous player's act was a fold
+
+				if (this.activePlayers.get(this.activePlayers.indexOf(priorPlayer)).isLastPlayer() == true) { //if he was the last player to act & folded, exit this loop!
 					break;
 				}
-				this.activePlayers.remove(priorPlayer);
+				this.activePlayers.remove(priorPlayer); //remove the folded player
 			}
-			actingPlayer.act();
+			actingPlayer.act(); //act-method determines the action of the currently acting Player: fold,call(check),raise
+			
+			//Now we determine the position of the next player to act within our activePlayerList
 			int currentPlayerIndex = (this.activePlayers.indexOf(actingPlayer));
-			if (currentPlayerIndex == this.activePlayers.size()-1) {
+			if (currentPlayerIndex == this.activePlayers.size() - 1) {
 				nextPlayerIndex = 0;
 			} else {
-				nextPlayerIndex = currentPlayerIndex+1;
+				nextPlayerIndex = currentPlayerIndex + 1;
 			}
-			//this was the last player to act
-			priorPlayer = this.activePlayers.get(currentPlayerIndex);
-			//set acting player to next player to act
-			actingPlayer = this.activePlayers.get(nextPlayerIndex);
-			
+			priorPlayer = this.activePlayers.get(currentPlayerIndex); //priorPlayer is the player that last acted (either called,folded,raised,..)
+
+			actingPlayer = this.activePlayers.get(nextPlayerIndex); //actingPlayer is now the new player to act
+
 		}
-			//test-Syso
-			System.out.println("nextRound!");
-			
-			//newRound();
-			// TODO reset bettedAmount for every round (probably better to do in newRound)
-		
+		// test-Syso
+		System.out.println("nextRound!"); // all betting for this round has been completed, it is now on to the next round! 
+
+		//TODO: From here, get into the "nextRound"; Adjust currentRound, deal the proper hands, reset bettingAmount and start a new betting round,...
+
+
 	}
 
 	public void addPlayer(Seat s) {
@@ -281,8 +314,6 @@ public class Poker implements iController {
 		int amountOfPlayers = Seat.getAmountOfPlayers() - 1;
 		Seat.setAmountOfPlayers(amountOfPlayers);
 	}
-	
-	
 
 	public int getPot() {
 		return pot;
@@ -336,9 +367,8 @@ public class Poker implements iController {
 	}
 
 	@Override
-	public void beginRound() { //INTERFACE METHOD!
+	public void beginRound() { // INTERFACE METHOD!
 
-		
 	}
 
 	public CommunityCards getComCards() {

@@ -41,7 +41,9 @@ public class Seat {
 	public static void setAmountOfPlayers(int amountOfPlayers) {
 		Seat.amountOfPlayers = amountOfPlayers;
 	}
-	
+	/**
+	 * act() determines whether a player raised,called(checked) or folded
+	 */
 	public void act(){
 		System.out.println("Player "+this.getName()+" it is your turn! "+(p.getToCall()-(this.bettedAmount))+" to call!");
 		//TODO: This is only temporary. As well as the checking/folding with 0!
@@ -64,14 +66,20 @@ public class Seat {
 			fold();
 		}
 	}
-
+	/**
+	 * call(amount) is called when a player calls a bet
+	 * @param amount: the amount of the bet
+	 */
 	public void call(int amount) {
 			this.bettedAmount += amount;
 			this.setLastMove("call");
 			System.out.println("Player "+this.getName()+" called!");
 			System.out.println(" ");
 	}
-
+	/**
+	 * Called when a player is betting. Also properly determines who the lastPlayerToAct is, in relation to the last raiser
+	 * @param amount: the amount of the bet (not the raise!)
+	 */
 	public void bet(int amount) {
 		//TODO: the current bet is not yet connected to the players stack or the 
 		//TODO: poker-games pot!
@@ -82,16 +90,15 @@ public class Seat {
 			System.out.println("Player "+this.getName()+" raised to"+amount);
 			System.out.println(" ");
 			
-			//re-sort list, so that last betting player is always last to act
+			//Get activePlayersList, so we can determine the new lastPlayerToAct 
 			ArrayList<Seat> activePlayers = p.getActivePlayers();
 			
-			//Delete old lastPlayer
+			//reset all isLastPlayer attributes
 			for(Seat player: activePlayers){
 					player.isLastPlayer=false;
 			}
-			// (this) is the last player to make a bet
-			int lastToBetPlayerPosition = activePlayers.indexOf(this);
-			int lastPlayerPosition;
+			int lastToBetPlayerPosition = activePlayers.indexOf(this); //the index of the last player to bet
+			int lastPlayerPosition; 
 			
 			//player left to lastToBet is then the last Player:
 			if(lastToBetPlayerPosition == 0){
@@ -101,7 +108,7 @@ public class Seat {
 				lastPlayerPosition = lastToBetPlayerPosition-1;
 			}
 			
-			activePlayers.get(lastPlayerPosition).isLastPlayer=true;
+			activePlayers.get(lastPlayerPosition).isLastPlayer=true; //set the player seated left to the last raiser as lastPlayer
 	
 			
 	}
