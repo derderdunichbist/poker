@@ -1,17 +1,22 @@
 package Interfaces;
 
-import Backend.Poker;
-
 public interface iController {
 
 	/**
-	 * Deals cards to the players; calls {@link Poker#burnCards()} for instance
+	 * Deals all respective cards available in the game: Holdcards and communitycards 
 	 */
 	public void dealHands();
+	
+	/**
+	 * Adds a player with a specified name to the next empty seat
+	 * @param name The players name
+	 */
+	public void addPlayer(String name);
 
 	/**
-	 * Hands 2 cards to each player
+	 * Starts a new round
+	 * Added also for testing purposes etc. Consider refactoring
 	 */
-	public void beginRound();
+	public void newRound();
 
 }

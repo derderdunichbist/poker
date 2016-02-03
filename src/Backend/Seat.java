@@ -12,7 +12,7 @@ public class Seat {
 	private int chips;
 	private int bettedAmount = 0; // amount of bets in $ (in current round!); is 0 on roundstart
 	private ArrayList<Card> cardsOnHand; // Array List used instead of Array for easy emptying
-	private Poker p;
+	private Poker poker;
 	private boolean isLastPlayer = false;
 	private String lastMove=""; //to determine whether or not his last move was a call,raise or fold: Important in ending the round
 	
@@ -20,22 +20,15 @@ public class Seat {
 		return isLastPlayer;
 	}
 
-	public Seat(String playerName,Poker p) {
-		
-		this.p = p;
+	public Seat(Poker poker) {
+		Seat.amountOfPlayers++;
 		this.cardsOnHand = new ArrayList<Card>(2);
-		
-		if (amountOfPlayers < 6 && playerName != null) {
-			setName(playerName);
-			amountOfPlayers++;
-			setSeatNumber(amountOfPlayers);
-		} else {
-			throw new RuntimeException("No more than 6 Players!");
-		}
+		this.setSeatNumber(amountOfPlayers);
+		this.poker = poker;
 	}
 
 	public static int getAmountOfPlayers() {
-		return amountOfPlayers;
+		return Seat.amountOfPlayers;
 	}
 
 	public static void setAmountOfPlayers(int amountOfPlayers) {
@@ -45,20 +38,20 @@ public class Seat {
 	 * act() determines whether a player raised,called(checked) or folded
 	 */
 	public void act(){
-		System.out.println("Player "+this.getName()+" it is your turn! "+(p.getToCall()-(this.bettedAmount))+" to call!");
+		System.out.println("Player "+this.getName()+" it is your turn! "+(poker.getToCall()-(this.bettedAmount))+" to call!");
 		//TODO: This is only temporary. As well as the checking/folding with 0!
 		System.out.println("enter your bet or '0' to check/fold :");
 		
 		Scanner reader = new Scanner(System.in); 
 		int n = reader.nextInt();
 		
-		if(n > p.getToCall()-this.bettedAmount){
+		if(n > poker.getToCall()-this.bettedAmount){
 			bet(n);
 		}
-		else if(n == p.getToCall()-this.bettedAmount){
+		else if(n == poker.getToCall()-this.bettedAmount){
 			call(n);
 		}
-		else if(n < p.getToCall()-this.bettedAmount && n > 0)
+		else if(n < poker.getToCall()-this.bettedAmount && n > 0)
 		{
 			throw new RuntimeException("Not a valid bet! Bet at least enough to call or fold!");
 		}
@@ -85,13 +78,13 @@ public class Seat {
 		//TODO: poker-games pot!
 		
 			this.bettedAmount += amount;
-			p.setToCall(bettedAmount);
+			poker.setToCall(bettedAmount);
 			this.setLastMove("bet");
-			System.out.println("Player "+this.getName()+" raised to"+amount);
+			System.out.println("Player "+this.getName()+" raised to "+amount);
 			System.out.println(" ");
 			
 			//Get activePlayersList, so we can determine the new lastPlayerToAct 
-			ArrayList<Seat> activePlayers = p.getActivePlayers();
+			ArrayList<Seat> activePlayers = poker.getActivePlayers();
 			
 			//reset all isLastPlayer attributes
 			for(Seat player: activePlayers){
@@ -124,7 +117,7 @@ public class Seat {
 		return playerName;
 	}
 
-	private void setName(String playerName) {
+	public void setName(String playerName) {
 		if (playerName != null) {
 			this.playerName = playerName;
 		}

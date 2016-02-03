@@ -10,12 +10,14 @@ public class Poker implements iController {
 
 	private int pot;
 	private int toCall;
+	private int smallBlindValue = 50;
 	private Blind smallBlind;
 	private Blind bigBlind;
-	private int smallBlindValue = 50;
-	private ArrayList<Card> carddeck;
 	private CommunityCards comCards;
+	public static final int MAX_AMOUNT_OF_PLAYERS = 6;
+	public static final int AMOUNT_OF_CARDS = 52;
 
+	private ArrayList<Card> carddeck;
 	/**
 	 * all players that are currently seated on the table
 	 */
@@ -30,14 +32,76 @@ public class Poker implements iController {
 	private eRound currentRound;
 
 	public Poker() {
-
-		this.seatedPlayers = new ArrayList<Seat>(6);
-		this.activePlayers = new ArrayList<Seat>(6);
-		this.setCarddeck(new ArrayList<Card>(52));
+		this.seatedPlayers = new ArrayList<Seat>(MAX_AMOUNT_OF_PLAYERS);
+		this.activePlayers = new ArrayList<Seat>(MAX_AMOUNT_OF_PLAYERS);
+		this.setCarddeck(new ArrayList<Card>(AMOUNT_OF_CARDS));
 		this.currentRound = eRound.INITIALIZE;
-		this.init();
 		this.comCards = new CommunityCards();
+		this.init();
+	}
 
+	public int getPot() {
+		return pot;
+	}
+
+	public int getToCall() {
+		return toCall;
+	}
+
+	public Blind getBigBlind() {
+		return bigBlind;
+	}
+
+	public Blind getSmallBlind() {
+		return smallBlind;
+	}
+
+	public ArrayList<Seat> getActivePlayers() {
+		return activePlayers;
+	}
+
+	public ArrayList<Card> getCarddeck() {
+		return carddeck;
+	}
+
+	public eRound getCurrentRound() {
+		return currentRound;
+	}
+	
+	public CommunityCards getComCards() {
+		return comCards;
+	}
+
+	public void setActivePlayers(ArrayList<Seat> activePlayers) {
+		this.activePlayers = activePlayers;
+	}
+
+	public void setPot(int pot) {
+		this.pot = pot;
+	}
+
+	public void setToCall(int toCall) {
+		this.toCall = toCall;
+	}
+
+	public void setSmallBlind(Blind smallBlind) { //TODO Leave this here for now, in case we want to dynamically change blindslater on
+		this.smallBlind = smallBlind;
+	}
+
+	public void setBigBlind(Blind bigBlind) {
+		this.bigBlind = bigBlind;
+	}
+
+	public void setCarddeck(ArrayList<Card> carddeck) {
+		this.carddeck = carddeck;
+	}
+
+	public void setCurrentRound(eRound currentRound) {
+		this.currentRound = currentRound;
+	}
+
+	public void setComCards(CommunityCards comCards) {
+		this.comCards = comCards;
 	}
 
 	// Following listed methods are not yet fully determined neither in
@@ -48,44 +112,33 @@ public class Poker implements iController {
 		bigBlind = new Blind(smallBlindValue);
 
 		// For testing-purposes only: players created here for now!
-		this.addPlayer(new Seat("Benni", this));
-		this.addPlayer(new Seat("DeGagBenni", this));
-		this.addPlayer(new Seat("leGrandBrunBrun", this));
-		this.addPlayer(new Seat("BenniDiGaga", this));
-		this.addPlayer(new Seat("Berndsaftstinker", this));
-		this.addPlayer(new Seat("Berndsaftgagrotzfotz", this));
+		
+		this.initSeats();
 
 		// Give a random player small- and bigblind
 		Random rand = new Random();
-		int index = rand.nextInt((seatedPlayers.size() - 1) - 0 + 0) + 0;
+		int index = rand.nextInt((seatedPlayers.size() - 1));
 		Seat sBPlayer = seatedPlayers.get(index);
 		sBPlayer.setBlind(this.smallBlind);
 
-		if (index < (seatedPlayers.size() - 1)) {
-			index++;
-		} else {
-			index = 0;
-		}
+		index = this.getNextIndex(index, seatedPlayers);
+		
 		Seat bBPlayer = seatedPlayers.get(index);
 		bBPlayer.setBlind(this.bigBlind);
 
 		// Syso-Test Are players added properly?
 		System.out.println("currently Seated players are: " + seatedPlayers.toString());
-
-		newRound();
 	}
 
-	public ArrayList<Seat> getActivePlayers() {
-		return activePlayers;
-	}
-
-	public void setActivePlayers(ArrayList<Seat> activePlayers) {
-		this.activePlayers = activePlayers;
+	private void initSeats() {
+		for(int i = 0; i < MAX_AMOUNT_OF_PLAYERS; i++) {
+			this.seatedPlayers.add(new Seat(this));
+		}
 	}
 
 	public void resetDeck() {
 
-		if (this.carddeck.size() > 0) {
+		if (this.carddeck != null) {
 			this.carddeck.clear();
 		}
 
@@ -100,6 +153,7 @@ public class Poker implements iController {
 	}
 
 	// A new round begins after a complete hand is finished
+	@Override
 	public void newRound() {
 		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind next
 		int newBigBlind = 0;	// Saves index of the seat to receive bigBlind next					
@@ -107,24 +161,12 @@ public class Poker implements iController {
 		resetDeck();//Fill carddeck with 52 cards again, in random order
 		activePlayers.clear();
 
-		if (this.currentRound != eRound.INITIALIZE) { // This is not being done
-														// in the first round
-														// (initialize-phase),
-														// as blinds are
-														// randomly assigned
-														// then
+		if (this.currentRound != eRound.INITIALIZE) { // This is not being done in the first round (initialize-phase), as blinds are randomly assigned then
 
 			this.comCards.reset();
-			for (Seat s : this.seatedPlayers) { // identify old smallBlindPlayer
-												// and delete current
-												// Blindpositions
-				if (s.getBlind() != null && s.getBlind().getType().equals("smallBlind")) { // Who
-																							// has
-																							// the
-																							// smallBlind?
-					newSmallBlind = (seatedPlayers.indexOf(s));// determine seat
-																// of old
-																// smallBlind
+			for (Seat s : this.seatedPlayers) { // identify old smallBlindPlayer and delete current Blindpositions
+				if (s.getBlind() != null && s.getBlind().getType().equals("smallBlind")) { // Who has the smallBlind?
+					newSmallBlind = (seatedPlayers.indexOf(s));// determine seat of old smallBlind
 				}
 				s.setBlind(null);
 			}
@@ -164,59 +206,17 @@ public class Poker implements iController {
 		// with Small and Bigblind
 		for (int i = 0; i < seatedPlayers.size(); i++) {
 			this.activePlayers.add(seatedPlayers.get(index)); //add Players starting with smallBlind
-			if (index == seatedPlayers.size() - 1) {
-				index = 0;
-			} else {
-				index++;
-			}
+			index = this.getNextIndex(index, seatedPlayers);
 		}
 		dealHands(); //Call dealHands to start dealing hands to each player!
 	}
-	/**
-	 * dealHands(): Deals all respective cards available in the game: Holecards and communitycards 
-	 */
-	@Override
-	public void dealHands() {
-		switch (this.currentRound) {//Either deal hole-cards or community-hands (given each case)
-		case ROUNDEND: //all betting has been done, the winner has to be determined by showdown
-			identifyHands();
-			break;
-
-		case PREFLOP:
-			int seatCounter = 0;
-			for (int i = 0; i < 2; i++) {
-				for (int j = 0; j < activePlayers.size(); j++) {
-					activePlayers.get(seatCounter).addCard(carddeck.remove(0));
-					// Ring-construct
-					if (seatCounter == seatedPlayers.size() - 1) {
-						seatCounter = 0;
-					} else {
-						seatCounter++;
-					}
-				}
-			}
-			break;
-
-		case FLOP:
-			removeCard(); // burn 1 card
-			this.comCards.addCard(this.carddeck.remove(0));
-			this.comCards.addCard(this.carddeck.remove(0));
-			this.comCards.addCard(this.carddeck.remove(0));
-
-			break;
-
-		case TURN:
-			removeCard(); // burn 1 card
-			this.comCards.addCard(this.carddeck.remove(0));
-			break;
-
-		case RIVER:
-			removeCard(); // burn 1 card
-			this.comCards.addCard(this.carddeck.remove(0));
-			break;
-
+	private int getNextIndex(int index, ArrayList<Seat> seats) {
+		if (index == seats.size() - 1) {
+			return 0;
+		} else {
+			index++;
+			return index;
 		}
-		bettingRound();
 	}
 
 	private void identifyHands() {
@@ -300,14 +300,6 @@ public class Poker implements iController {
 
 	}
 
-	public void addPlayer(Seat s) {
-		if (s != null && this.seatedPlayers.size() < 6) {
-			this.seatedPlayers.add(s);
-		} else {
-			throw new NullPointerException("Player cannot be seated! Seat is either null or no more space!");
-		}
-	}
-
 	public void removePlayer(Seat s) {
 		this.seatedPlayers.remove(s);
 
@@ -315,68 +307,53 @@ public class Poker implements iController {
 		Seat.setAmountOfPlayers(amountOfPlayers);
 	}
 
-	public int getPot() {
-		return pot;
-	}
-
-	public void setPot(int pot) {
-		this.pot = pot;
-	}
-
-	public int getToCall() {
-		return toCall;
-	}
-
-	// used when a player raises
-	public void setToCall(int toCall) {
-		this.toCall = toCall;
-	}
-
-	public Blind getSmallBlind() {
-		return smallBlind;
-	}
-
-	// Leave this here for now, in case we want to dynamically change blinds
-	// later on
-	public void setSmallBlind(Blind smallBlind) {
-		this.smallBlind = smallBlind;
-	}
-
-	public Blind getBigBlind() {
-		return bigBlind;
-	}
-
-	public void setBigBlind(Blind bigBlind) {
-		this.bigBlind = bigBlind;
-	}
-
-	public ArrayList<Card> getCarddeck() {
-		return carddeck;
-	}
-
-	public void setCarddeck(ArrayList<Card> carddeck) {
-		this.carddeck = carddeck;
-	}
-
-	public eRound getCurrentRound() {
-		return currentRound;
-	}
-
-	public void setCurrentRound(eRound currentRound) {
-		this.currentRound = currentRound;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void dealHands() {
+		if(this.currentRound == eRound.ROUNDEND) {
+			identifyHands();
+		} else if (this.currentRound == eRound.PREFLOP) {
+			int seatCounter = 0; 
+			for (int i = 0; i < 2; i++) {
+				for (int j = 0; j < activePlayers.size(); j++) {
+					activePlayers.get(seatCounter).addCard(carddeck.remove(0));
+					seatCounter = getNextIndex(seatCounter, seatedPlayers);
+				}
+			}
+		} else if (this.currentRound == eRound.FLOP) {
+			removeCard(); // burn 1 card
+			this.comCards.addCard(this.carddeck.remove(0));
+			this.comCards.addCard(this.carddeck.remove(0));
+			this.comCards.addCard(this.carddeck.remove(0));
+			
+		} else if (this.currentRound == eRound.TURN) {
+			removeCard(); // burn 1 card
+			this.comCards.addCard(this.carddeck.remove(0));
+			
+		} else if (this.currentRound == eRound.RIVER) {
+			removeCard(); // burn 1 card
+			this.comCards.addCard(this.carddeck.remove(0));
+		}
+		bettingRound();
 	}
 
 	@Override
-	public void beginRound() { // INTERFACE METHOD!
-
-	}
-
-	public CommunityCards getComCards() {
-		return comCards;
-	}
-
-	public void setComCards(CommunityCards comCards) {
-		this.comCards = comCards;
+	public void addPlayer(String name) {
+		if(name != null && name.length() >= 2) {
+			for(int i = 0; i < seatedPlayers.size(); i++) {
+				String playerName = seatedPlayers.get(i).getName();
+				if (playerName == null || playerName.isEmpty()) {
+					seatedPlayers.get(i).setName(name);
+					System.out.println(seatedPlayers.get(i).getName() +  " took place on seat " + seatedPlayers.get(i).getSeatNumber());
+					break;
+				}
+			}
+		}
+		else {
+			throw new RuntimeException("Name is not allowed to be null or have less than 2 symbols");
+		}
 	}
 
 }
