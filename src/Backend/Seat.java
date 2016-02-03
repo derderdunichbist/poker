@@ -1,6 +1,7 @@
 package Backend;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Seat {
 
@@ -11,9 +12,17 @@ public class Seat {
 	private int chips;
 	private int bettedAmount = 0; // amount of bets in $ (in current round!); is 0 on roundstart
 	private ArrayList<Card> cardsOnHand; // Array List used instead of Array for easy emptying
+	private Poker p;
+	private boolean isLastPlayer = false;
+	private String lastMove=""; //to determine whether or not his last move was a call,raise or fold: Important in ending the round
+	
+	public boolean isLastPlayer() {
+		return isLastPlayer;
+	}
 
-	public Seat(String playerName) {
+	public Seat(String playerName,Poker p) {
 		
+		this.p = p;
 		this.cardsOnHand = new ArrayList<Card>(2);
 		
 		if (amountOfPlayers < 6 && playerName != null) {
@@ -32,17 +41,62 @@ public class Seat {
 	public static void setAmountOfPlayers(int amountOfPlayers) {
 		Seat.amountOfPlayers = amountOfPlayers;
 	}
-
-	public void call() {
-
+	
+	public void act(){
+		System.out.println("Player "+this.getName()+" it is your turn! "+p.getToCall() +" to call!");
+		//TODO: This is only temporary. As well as the checking/folding with 0!
+		System.out.println("enter your bet or '0' to check/fold :");
+		
+		Scanner reader = new Scanner(System.in); 
+		int n = reader.nextInt();
+		
+		if(n > p.getToCall()-this.bettedAmount){
+			bet(n);
+		}
+		else if(n == p.getToCall()-this.bettedAmount){
+			call(n);
+		}
+		else if(n < p.getToCall()-this.bettedAmount && n > 0)
+		{
+			throw new RuntimeException("Not a valid bet! Bet at least enough to call or fold!");
+		}
+		else{
+			fold();
+		}
 	}
 
-	public void bet() {
-
+	public void call(int amount) {
+			this.bettedAmount = amount;
+			this.setLastMove("call");
+			System.out.println("Player "+this.getName()+" called!");
 	}
 
-	public void fold() {
+	public void bet(int amount) {
+		//TODO: the current bet is not yet connected to the players stack or the 
+		//TODO: poker-games pot!
+		
+			this.bettedAmount = amount;
+			p.setToCall(amount);
+			this.setLastMove("bet");
+			System.out.println("Player "+this.getName()+" raised to"+amount);
+			
+			//re-sort list, so that last betting player is always last to act
+			ArrayList<Seat> activePlayers = p.getActivePlayers();
+			
+			//Delete old lastPlayer
+			for(Seat player: activePlayers){
+				if(player.isLastPlayer==true){
+					player.isLastPlayer=false;
+				}
+			}
+			//set new lastPlayer to lastToBet-Player: Important to determine end of a betting round
+			int lastToBetPlayerPosition = activePlayers.indexOf(this);
+			activePlayers.get(lastToBetPlayerPosition).isLastPlayer=true;
+	}
 
+	private void fold() {
+		this.setLastMove("fold");
+		//TODO: implement Fold
 	}
 
 	public String getName() {
@@ -98,6 +152,16 @@ public class Seat {
 			cardsOnHand.add(card);
 		} else {
 			throw new RuntimeException ("Cards list is either null or already full (2 cards)!");
+		}
+	}
+
+	public String getLastMove() {
+		return lastMove;
+	}
+
+	public void setLastMove(String lastMove) {
+		if(lastMove != null){
+			this.lastMove = lastMove;
 		}
 	}
 

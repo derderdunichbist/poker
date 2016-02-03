@@ -14,6 +14,7 @@ public class Poker implements iController {
 	private Blind bigBlind;
 	private int smallBlindValue = 50;
 	private ArrayList<Card> carddeck;
+	private CommunityCards comCards;
 
 	/**
 	 * all players that are currently seated on the table
@@ -35,6 +36,7 @@ public class Poker implements iController {
 		this.setCarddeck(new ArrayList<Card>(52));
 		this.currentRound = eRound.INITIALIZE;
 		this.init();
+		this.comCards = new CommunityCards();
 		
 
 	}
@@ -47,12 +49,12 @@ public class Poker implements iController {
 		bigBlind = new Blind(smallBlindValue);
 
 		// For testing-purposes only: players created here for now!
-		this.addPlayer(new Seat("Benni"));
-		this.addPlayer(new Seat("DeGagBenni"));
-		this.addPlayer(new Seat("leGrandBrunBrun"));
-		this.addPlayer(new Seat("BenniDiGaga"));
-		this.addPlayer(new Seat("Berndsaftstinker"));
-		this.addPlayer(new Seat("Berndsaftgagrotzfotz"));
+		this.addPlayer(new Seat("Benni",this));
+		this.addPlayer(new Seat("DeGagBenni",this));
+		this.addPlayer(new Seat("leGrandBrunBrun",this));
+		this.addPlayer(new Seat("BenniDiGaga",this));
+		this.addPlayer(new Seat("Berndsaftstinker",this));
+		this.addPlayer(new Seat("Berndsaftgagrotzfotz",this));
 
 		// Give a random player small- and bigblind
 		Random rand = new Random();
@@ -72,6 +74,14 @@ public class Poker implements iController {
 		System.out.println("currently Seated players are: " + seatedPlayers.toString());
 
 		newRound();
+	}
+
+	public ArrayList<Seat> getActivePlayers() {
+		return activePlayers;
+	}
+
+	public void setActivePlayers(ArrayList<Seat> activePlayers) {
+		this.activePlayers = activePlayers;
 	}
 
 	public void resetDeck() {
@@ -96,13 +106,14 @@ public class Poker implements iController {
 	public void newRound() {
 		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind
 								// next
-
+		
+	
 		resetDeck();
 		activePlayers.clear();
 		
 		if(this.currentRound!=eRound.INITIALIZE){
 			
-		
+		this.comCards.reset();
 		for (Seat s : this.seatedPlayers) { // identify old smallBlindPlayer and
 											// delete current Blindpositions
 			if (s.getBlind() != null && s.getBlind().getType().equals("smallBlind")) {
@@ -143,13 +154,16 @@ public class Poker implements iController {
 	@Override
 	public void dealHands() {
 		System.out.println(activePlayers);
-		if (this.currentRound == eRound.PREFLOP) {
+		switch(this.currentRound){
+		case ROUNDEND:
+			identifyHands();
+			break;
+		
+		case PREFLOP: 
 			int seatCounter = 0;
 			for (int i = 0; i < 2; i++) {
 				for (int j = 0; j < activePlayers.size(); j++) {
-					activePlayers.get(seatCounter).addCard(carddeck.get(0));
-					this.removeCard();
-
+					activePlayers.get(seatCounter).addCard(carddeck.remove(0));
 					// Ring-construct
 					if (seatCounter == seatedPlayers.size() - 1) {
 						seatCounter = 0;
@@ -158,11 +172,35 @@ public class Poker implements iController {
 					}
 				}
 			}
-			bettingRound();
+			break;
+		
+		case FLOP:
+			removeCard(); //burn 1 card 
+			this.comCards.addCard(this.carddeck.remove(0));
+			this.comCards.addCard(this.carddeck.remove(0));
+			this.comCards.addCard(this.carddeck.remove(0));
+			
+			break;
+			
+		case TURN:
+			removeCard(); //burn 1 card 
+			this.comCards.addCard(this.carddeck.remove(0));
+			break;
+		
+		case RIVER:
+			removeCard(); //burn 1 card 
+			this.comCards.addCard(this.carddeck.remove(0));
+			break;
+				
 		}
-		// TODO implement all cases: Flop, Turn, River and properly deal community - cards
+		bettingRound();
 	}
 	
+	private void identifyHands() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	//removeDealtCard and burnCard with same implementation became removeCard
 	private void removeCard() { 
 		carddeck.remove(0);
@@ -179,8 +217,31 @@ public class Poker implements iController {
 				System.out.println("Spieler: "+ s.getName() +" hält den "+ s.getBlind().getType());
 			}
 		}
-
-		// TODO implementation of betting-Round algorithm!
+		
+		Seat sBPlayer = this.activePlayers.get(0);
+		Seat bBPlayer = this.activePlayers.get(1);
+		Seat actingPlayer;
+		
+		if(this.currentRound == eRound.PREFLOP){
+			sBPlayer.bet(this.smallBlind.getValue());
+			bBPlayer.bet(this.bigBlind.getValue());
+			actingPlayer = this.activePlayers.get(2);
+		}
+		else{
+			actingPlayer = sBPlayer;
+		}
+		//TODO temporarily, raise/check/calls are realized by console-input
+		actingPlayer.act();
+		
+		//TODO: determine next acting Player (again, get the index of currently acting player and implement ring-type selection
+		//TODO: after implementation of determining next player, create a loop for the betting round (right now, its only 1 player to act once)
+		
+		if(actingPlayer.getLastMove().equals("call") && actingPlayer.isLastPlayer()==true){
+			//test-Syso
+			System.out.println("nextRound!");
+			newRound();
+			// TODO reset bettedAmount for every round (probably better to do in newRound)
+		}
 	}
 
 	public void addPlayer(Seat s) {
@@ -255,6 +316,14 @@ public class Poker implements iController {
 	public void beginRound() { //INTERFACE METHOD!
 
 		
+	}
+
+	public CommunityCards getComCards() {
+		return comCards;
+	}
+
+	public void setComCards(CommunityCards comCards) {
+		this.comCards = comCards;
 	}
 
 }

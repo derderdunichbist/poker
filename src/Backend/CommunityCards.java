@@ -17,6 +17,10 @@ public class CommunityCards {
 			throw new RuntimeException("Cannot set Card. Card is either null or already 5 ComCards!");
 		}
 	}
+	
+	public void reset(){
+		this.communityCards.clear();
+	}
 
 	// create me an Array of all flop-cards
 	public Card[] getFlop() {
