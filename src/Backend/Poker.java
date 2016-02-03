@@ -98,8 +98,6 @@ public class Poker implements iController {
 		}
 		Collections.shuffle(this.carddeck);
 
-		// test-syso: does deck work properly?
-		System.out.println(this.carddeck);
 	}
 
 	// A new round begins after a complete hand is finished
@@ -153,7 +151,6 @@ public class Poker implements iController {
 
 	@Override
 	public void dealHands() {
-		System.out.println(activePlayers);
 		switch(this.currentRound){
 		case ROUNDEND:
 			identifyHands();
@@ -208,15 +205,20 @@ public class Poker implements iController {
 
 	public void bettingRound() {
 		// TODO remove this, this is only here for testing-purposes:
+		System.out.println(" ");
 		for (Seat s : activePlayers) {
 			ArrayList<Card> holeCards = s.getCards();
-			System.out.println("Spieler: " + s.getName());
+			System.out.print("Spieler " + s.getName()+" hält: ");
 			for (Card holeCard : holeCards)
-				System.out.println("hält: " + holeCard.getName());
+				System.out.print(" "+holeCard.getName()+", ");
+			System.out.println(" ");
 			if(s.getBlind()!=null){
 				System.out.println("Spieler: "+ s.getName() +" hält den "+ s.getBlind().getType());
+			
 			}
+
 		}
+		System.out.println(" ");
 		//get me small- and bigBlindPlayer; actingPlayer represents player to currently call/raise/fold
 		Seat sBPlayer = this.activePlayers.get(0);
 		Seat bBPlayer = this.activePlayers.get(1);

@@ -69,6 +69,7 @@ public class Seat {
 			this.bettedAmount += amount;
 			this.setLastMove("call");
 			System.out.println("Player "+this.getName()+" called!");
+			System.out.println(" ");
 	}
 
 	public void bet(int amount) {
@@ -79,6 +80,7 @@ public class Seat {
 			p.setToCall(bettedAmount);
 			this.setLastMove("bet");
 			System.out.println("Player "+this.getName()+" raised to"+amount);
+			System.out.println(" ");
 			
 			//re-sort list, so that last betting player is always last to act
 			ArrayList<Seat> activePlayers = p.getActivePlayers();
@@ -100,16 +102,14 @@ public class Seat {
 			}
 			
 			activePlayers.get(lastPlayerPosition).isLastPlayer=true;
-			
-			for(Seat player: activePlayers){
-				System.out.println(player.getName()+" is "+ player.isLastPlayer);
-		}
+	
 			
 	}
 
 	private void fold() {
 		this.setLastMove("fold");
 		System.out.println("Player "+this.getName()+" folded his hand");
+		System.out.println(" ");
 		//betting-Round folds the player, as method needs further information from currently active playerobject
 	}
 
