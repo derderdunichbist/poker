@@ -76,7 +76,7 @@ public class Seat {
 		//TODO: poker-games pot!
 		
 			this.bettedAmount += amount;
-			p.setToCall(amount);
+			p.setToCall(bettedAmount);
 			this.setLastMove("bet");
 			System.out.println("Player "+this.getName()+" raised to"+amount);
 			
@@ -93,7 +93,7 @@ public class Seat {
 			
 			//player left to lastToBet is then the last Player:
 			if(lastToBetPlayerPosition == 0){
-				lastPlayerPosition = 5;
+				lastPlayerPosition = activePlayers.size()-1;
 			}
 			else{
 				lastPlayerPosition = lastToBetPlayerPosition-1;
@@ -102,14 +102,15 @@ public class Seat {
 			activePlayers.get(lastPlayerPosition).isLastPlayer=true;
 			
 			for(Seat player: activePlayers){
-				System.out.println(player.isLastPlayer);
+				System.out.println(player.getName()+" is "+ player.isLastPlayer);
 		}
 			
 	}
 
 	private void fold() {
 		this.setLastMove("fold");
-		//TODO: implement Fold
+		System.out.println("Player "+this.getName()+" folded his hand");
+		//betting-Round folds the player, as method needs further information from currently active playerobject
 	}
 
 	public String getName() {

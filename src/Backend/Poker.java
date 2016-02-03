@@ -236,9 +236,17 @@ public class Poker implements iController {
 		Seat priorPlayer=null; //last acting player : needed to check the move & position of the last to act player
 		
 		while (priorPlayer == null || priorPlayer.isLastPlayer() == false || priorPlayer.getLastMove() != "call") {
+			
+			if(priorPlayer != null && priorPlayer.getLastMove().equals("fold")){ //this player folded in the previous round
+				
+				if(this.activePlayers.get(this.activePlayers.indexOf(priorPlayer)).isLastPlayer()==true){
+					break;
+				}
+				this.activePlayers.remove(priorPlayer);
+			}
 			actingPlayer.act();
 			int currentPlayerIndex = (this.activePlayers.indexOf(actingPlayer));
-			if (currentPlayerIndex == 5) {
+			if (currentPlayerIndex == this.activePlayers.size()-1) {
 				nextPlayerIndex = 0;
 			} else {
 				nextPlayerIndex = currentPlayerIndex+1;
@@ -248,17 +256,10 @@ public class Poker implements iController {
 			//set acting player to next player to act
 			actingPlayer = this.activePlayers.get(nextPlayerIndex);
 			
-			System.out.println(priorPlayer + priorPlayer.getLastMove() + " "+priorPlayer.isLastPlayer());
-			System.out.println(actingPlayer + actingPlayer.getLastMove() + " "+actingPlayer.isLastPlayer());
 		}
-		
-		
-		
-		//TODO: determine next acting Player (again, get the index of currently acting player and implement ring-type selection
-		//TODO: after implementation of determining next player, create a loop for the betting round (right now, its only 1 player to act once)
-
 			//test-Syso
 			System.out.println("nextRound!");
+			
 			//newRound();
 			// TODO reset bettedAmount for every round (probably better to do in newRound)
 		
