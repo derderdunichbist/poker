@@ -8,16 +8,51 @@ import Interfaces.iController;
 
 public class Poker implements iController {
 
+	/**
+	 * The current pot value
+	 */
 	private int pot;
+	
+	/**
+	 * The current amount every player has to call (syn.: highest bet yet)
+	 */
 	private int toCall;
+	
+	/**
+	 * The small blind value
+	 */
 	private int smallBlindValue = 50;
+	
+	/**
+	 * The game's small blind
+	 */
 	private Blind smallBlind;
+	
+	/**
+	 * The game's big blind
+	 */
 	private Blind bigBlind;
+	
+	/**
+	 * The game's community cards
+	 */
 	private CommunityCards comCards;
+	
+	/**
+	 * The maximum amount of players that can play
+	 */
 	public static final int MAX_AMOUNT_OF_PLAYERS = 6;
+	
+	/**
+	 * The amount of cards adapted by the Texas Hold'em rules
+	 */
 	public static final int AMOUNT_OF_CARDS = 52;
 
+	/**
+	 * The shuffled carddeck
+	 */
 	private ArrayList<Card> carddeck;
+	
 	/**
 	 * all players that are currently seated on the table
 	 */
@@ -29,6 +64,9 @@ public class Poker implements iController {
 	 */
 	private ArrayList<Seat> activePlayers;
 
+	/**
+	 * The current round state
+	 */
 	private eRound currentRound;
 
 	public Poker() {
@@ -84,7 +122,7 @@ public class Poker implements iController {
 		this.toCall = toCall;
 	}
 
-	public void setSmallBlind(Blind smallBlind) { //TODO Leave this here for now, in case we want to dynamically change blindslater on
+	public void setSmallBlind(Blind smallBlind) {
 		this.smallBlind = smallBlind;
 	}
 
@@ -104,30 +142,11 @@ public class Poker implements iController {
 		this.comCards = comCards;
 	}
 
-	// Following listed methods are not yet fully determined neither in
-	// name,implementation nor order! ------{
 	public void init() {
 
 		smallBlind = new Blind(smallBlindValue);
 		bigBlind = new Blind(smallBlindValue);
-
-		// For testing-purposes only: players created here for now!
-		
 		this.initSeats();
-
-		// Give a random player small- and bigblind
-		Random rand = new Random();
-		int index = rand.nextInt((seatedPlayers.size() - 1));
-		Seat sBPlayer = seatedPlayers.get(index);
-		sBPlayer.setBlind(this.smallBlind);
-
-		index = this.getNextIndex(index, seatedPlayers);
-		
-		Seat bBPlayer = seatedPlayers.get(index);
-		bBPlayer.setBlind(this.bigBlind);
-
-		// Syso-Test Are players added properly?
-		System.out.println("currently Seated players are: " + seatedPlayers.toString());
 	}
 
 	private void initSeats() {
@@ -137,7 +156,6 @@ public class Poker implements iController {
 	}
 
 	public void resetDeck() {
-
 		if (this.carddeck != null) {
 			this.carddeck.clear();
 		}
@@ -149,10 +167,8 @@ public class Poker implements iController {
 			}
 		}
 		Collections.shuffle(this.carddeck);
-
 	}
-
-	// A new round begins after a complete hand is finished
+	
 	@Override
 	public void newRound() {
 		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind next
@@ -170,23 +186,16 @@ public class Poker implements iController {
 				}
 				s.setBlind(null);
 			}
-			//ring-type identification for next player's index that receives smallBlind next
-			if (newSmallBlind == this.seatedPlayers.size() - 1) {
-				newSmallBlind = 0;
-			} else {
-				newSmallBlind = newSmallBlind + 1;
-			}
-
 			
+			//ring-type identification for next player's index that receives smallBlind next
+			newSmallBlind = this.getNextIndex(newSmallBlind, seatedPlayers);
+
 			this.seatedPlayers.get(newSmallBlind).setBlind(this.smallBlind);//move the smallBlind to next position
 
 			//ring-type identification for next player's index that receives bigBlind next
 			newBigBlind = newSmallBlind;
-			if (newBigBlind == this.seatedPlayers.size() - 1) {
-				newBigBlind = 0;
-			} else {
-				newBigBlind = newBigBlind + 1;
-			}
+			newBigBlind = this.getNextIndex(newBigBlind, seatedPlayers);
+			
 			this.seatedPlayers.get(newBigBlind).setBlind(this.bigBlind);//move the BigBlind to next position
 		}
 
@@ -210,6 +219,7 @@ public class Poker implements iController {
 		}
 		dealHands(); //Call dealHands to start dealing hands to each player!
 	}
+	
 	private int getNextIndex(int index, ArrayList<Seat> seats) {
 		if (index == seats.size() - 1) {
 			return 0;
@@ -235,20 +245,18 @@ public class Poker implements iController {
 	public void bettingRound() {
 
 		//This block has no functionality. It is simply there to see who holds which card for the time being, as well as who is assigned with a blind.
-		System.out.println(" ");
+		System.out.println();
 		for (Seat s : activePlayers) {
 			ArrayList<Card> holeCards = s.getCards();
 			System.out.print("Spieler " + s.getName() + " hält: ");
 			for (Card holeCard : holeCards)
 				System.out.print(" " + holeCard.getName() + ", ");
-			System.out.println(" ");
+			System.out.println();
 			if (s.getBlind() != null) {
 				System.out.println("Spieler: " + s.getName() + " hält den " + s.getBlind().getType());
-
 			}
-
 		}
-		System.out.println(" ");
+		System.out.println();
 		
 		//Get the SmallBlind and Bigblind Players
 		Seat sBPlayer = this.activePlayers.get(0);
@@ -270,9 +278,7 @@ public class Poker implements iController {
 
 		//A loop that continues until the last player to respond to a raise will call or fold
 		while (priorPlayer == null || priorPlayer.isLastPlayer() == false || priorPlayer.getLastMove() != "call") {
-
 			if (priorPlayer != null && priorPlayer.getLastMove().equals("fold")) { //in case the previous player's act was a fold
-
 				if (this.activePlayers.get(this.activePlayers.indexOf(priorPlayer)).isLastPlayer() == true) { //if he was the last player to act & folded, exit this loop!
 					break;
 				}
@@ -346,7 +352,7 @@ public class Poker implements iController {
 				String playerName = seatedPlayers.get(i).getName();
 				if (playerName == null || playerName.isEmpty()) {
 					seatedPlayers.get(i).setName(name);
-					System.out.println(seatedPlayers.get(i).getName() +  " took place on seat " + seatedPlayers.get(i).getSeatNumber());
+					System.out.println("Placetaking: " + seatedPlayers.get(i).toString());
 					break;
 				}
 			}
@@ -354,6 +360,23 @@ public class Poker implements iController {
 		else {
 			throw new RuntimeException("Name is not allowed to be null or have less than 2 symbols");
 		}
+	}
+
+	@Override
+	public void startGame() {
+		// Give a random player small- and bigblind
+		Random rand = new Random();
+		int index = rand.nextInt((seatedPlayers.size() - 1));
+		Seat sBPlayer = seatedPlayers.get(index);
+		sBPlayer.setBlind(this.smallBlind);
+
+		index = this.getNextIndex(index, seatedPlayers);
+
+		Seat bBPlayer = seatedPlayers.get(index);
+		bBPlayer.setBlind(this.bigBlind);
+
+		// Syso-Test Are players added properly?
+		System.out.println("currently Seated players are: " + seatedPlayers.toString());
 	}
 
 }

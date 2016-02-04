@@ -14,9 +14,17 @@ public interface iController {
 	public void addPlayer(String name);
 
 	/**
-	 * Starts a new round
-	 * Added also for testing purposes etc. Consider refactoring
+	 * Starts a new round; A new round begins after a complete hand is finished.<br>
+	 * Added method also for testing purposes etc. Consider refactoring
 	 */
 	public void newRound();
+
+	/**
+	 * Starts the game by
+	 * <ul>
+	 * <li>checking if minimum amount of players have joined</li>
+	 * <li>invoking {@link #newRound()}
+	 */
+	public void startGame();
 
 }
