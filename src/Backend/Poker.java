@@ -347,14 +347,19 @@ public class Poker implements iController {
 
 	@Override
 	public void addPlayer(String name) {
+		boolean playerAdded = false;
 		if(name != null && name.length() >= 2) {
 			for(int i = 0; i < seatedPlayers.size(); i++) {
 				String playerName = seatedPlayers.get(i).getName();
 				if (playerName == null || playerName.isEmpty()) {
 					seatedPlayers.get(i).setName(name);
 					System.out.println("Placetaking: " + seatedPlayers.get(i).toString());
+					playerAdded = true;
 					break;
 				}
+			}
+			if(playerAdded == false) { //Indicator that max amount of players has been reached, because new player could not be added
+				throw new RuntimeException("Max amount of players reached");
 			}
 		}
 		else {

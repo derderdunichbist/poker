@@ -13,6 +13,7 @@ public class runPoker {
 		poker.addPlayer("BenniDiGaga");
 		poker.addPlayer("Berndsaftstinker");
 		poker.addPlayer("Berndsaftgagrotzfotz");
+//		poker.addPlayer("AberIhrHabtMirNicht");
 		
 		poker.startGame();
 		
