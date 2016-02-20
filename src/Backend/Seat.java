@@ -34,7 +34,10 @@ public class Seat {
 	public static int getAmountOfPlayers() {
 		return Seat.amountOfPlayers;
 	}
-
+/**
+ * Set the amount that the respective Player has betted in only the current round! (rounds are for example: Flop,Turn,..)
+ * @param amountOfPlayers
+ */
 	public static void setAmountOfPlayers(int amountOfPlayers) {
 		Seat.amountOfPlayers = amountOfPlayers;
 	}
@@ -65,6 +68,14 @@ public class Seat {
 		
 		System.out.println("Current pot: " + poker.getPot());
 	}
+	public int getBettedAmount() {
+		return bettedAmount;
+	}
+
+	public void setBettedAmount(int bettedAmount) {
+		this.bettedAmount = bettedAmount;
+	}
+
 	/**
 	 * call(amount) is called when a player calls a bet
 	 * @param amount: the amount of the bet

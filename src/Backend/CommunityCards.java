@@ -39,9 +39,8 @@ public class CommunityCards {
 	}
 
 	// create me an Array of all cards
-	public Card[] getAll() {
-		Card[] cards = (Card[]) this.communityCards.toArray();
-		return cards;
+	public ArrayList<Card> getAll() {
+		return this.communityCards;
 	}
 
 	public Card getTurn() {

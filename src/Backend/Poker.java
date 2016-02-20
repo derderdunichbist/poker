@@ -300,9 +300,16 @@ public class Poker implements iController {
 		}
 		// test-Syso
 		System.out.println("nextRound!"); // all betting for this round has been completed, it is now on to the next round! 
-
-		//TODO: From here, get into the "nextRound"; Adjust currentRound, deal the proper hands, reset bettingAmount and start a new betting round,...
-
+		
+		for(Seat seated: seatedPlayers){
+			seated.setBettedAmount(0); //reset betted Amount of every player to 0 for a fresh betting round
+		}
+		this.toCall=0; //reset Amount to be called to 0 for a fresh betting round!
+		
+		this.currentRound = eRound.values()[this.currentRound.ordinal()+1];//Next Round! PreFlop to Flop, Flop to River etc.
+		System.out.println(this.currentRound);
+		
+		dealHands(); //Deal the hands for the following round
 
 	}
 
@@ -333,7 +340,7 @@ public class Poker implements iController {
 			this.comCards.addCard(this.carddeck.remove(0));
 			this.comCards.addCard(this.carddeck.remove(0));
 			this.comCards.addCard(this.carddeck.remove(0));
-			
+
 		} else if (this.currentRound == eRound.TURN) {
 			removeCard(); // burn 1 card
 			this.comCards.addCard(this.carddeck.remove(0));
@@ -342,6 +349,11 @@ public class Poker implements iController {
 			removeCard(); // burn 1 card
 			this.comCards.addCard(this.carddeck.remove(0));
 		}
+		//Print out the current Community-Cards
+		System.out.println("The community cards are:");
+		for(Card c: comCards.getAll())
+		System.out.println(c);
+		
 		bettingRound();
 	}
 
