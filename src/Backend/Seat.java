@@ -9,8 +9,12 @@ public class Seat {
 	private int seatNumber;
 	private static int amountOfPlayers = 0;
 	private Blind blind;
-	private int chips;
-	private int bettedAmount = 0; // amount of bets in $ (in current round!); is 0 on roundstart
+	private int chips = 2500;
+	
+	/**
+	 * amount of bets in $ (in current round!); is 0 on roundstart
+	 */
+	private int bettedAmount = 0; 
 	private ArrayList<Card> cardsOnHand; // Array List used instead of Array for easy emptying
 	private Poker poker;
 	private boolean isLastPlayer = false;
@@ -58,25 +62,39 @@ public class Seat {
 		else{
 			fold();
 		}
+		
+		System.out.println("Current pot: " + poker.getPot());
 	}
 	/**
 	 * call(amount) is called when a player calls a bet
 	 * @param amount: the amount of the bet
 	 */
 	public void call(int amount) {
+		if (amount > chips) {
+			throw new RuntimeException("Too high amount to call");
+		}
+		
 			this.bettedAmount += amount;
 			this.setLastMove("call");
 			System.out.println("Player "+this.getName()+" called!");
 			System.out.println(" ");
+			
+			this.chips -= amount;
+			
+			System.out.println("Current chips " + this.playerName + ": " + this.chips);
+			
+			poker.addToPot(amount);
+			
+			
 	}
 	/**
 	 * Called when a player is betting. Also properly determines who the lastPlayerToAct is, in relation to the last raiser
 	 * @param amount: the amount of the bet (not the raise!)
 	 */
 	public void bet(int amount) {
-		//TODO: the current bet is not yet connected to the players stack or the 
-		//TODO: poker-games pot!
-		
+			if (amount > chips) {
+				throw new RuntimeException("Too high amount to bet");
+			}
 			this.bettedAmount += amount;
 			poker.setToCall(bettedAmount);
 			this.setLastMove("bet");
@@ -103,6 +121,10 @@ public class Seat {
 			
 			activePlayers.get(lastPlayerPosition).isLastPlayer=true; //set the player seated left to the last raiser as lastPlayer
 	
+			this.chips -= amount;
+			poker.addToPot(amount);
+			
+			System.out.println("Current chips " + this.playerName + ": " + this.chips);
 			
 	}
 

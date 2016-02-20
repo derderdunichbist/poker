@@ -114,8 +114,8 @@ public class Poker implements iController {
 		this.activePlayers = activePlayers;
 	}
 
-	public void setPot(int pot) {
-		this.pot = pot;
+	public void addToPot(int amount) {
+		this.pot += amount; // betting or call amount added to pot
 	}
 
 	public void setToCall(int toCall) {
