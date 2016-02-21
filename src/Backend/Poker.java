@@ -7,6 +7,10 @@ import java.util.Random;
 import Interfaces.iController;
 
 public class Poker implements iController {
+	/**
+	 * Determines if there is already a winner or not. If there is a winner, the round ends, Pot and stacks are updated, rounds reset
+	 */
+	private boolean winner=false;
 
 	/**
 	 * The current pot value
@@ -172,8 +176,17 @@ public class Poker implements iController {
 	@Override
 	public void newRound() {
 		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind next
-		int newBigBlind = 0;	// Saves index of the seat to receive bigBlind next					
+		int newBigBlind = 0;	// Saves index of the seat to receive bigBlind next	
+		this.pot = 0;//There have not been bets yet, pot starts with 0.
 
+		winner=false; //Given that a new round is started, reset winner:Boolean to false
+		
+		for(Seat s: this.seatedPlayers){ //For a new round, nobody should have cards! Remove all cards out of players' hands.
+			s.removeCards();
+			s.setBettedAmount(0); //For a new Round, nobody has betted yet!
+		}
+			
+		
 		resetDeck();//Fill carddeck with 52 cards again, in random order
 		activePlayers.clear();
 
@@ -278,12 +291,25 @@ public class Poker implements iController {
 
 		//A loop that continues until the last player to respond to a raise will call or fold
 		while (priorPlayer == null || priorPlayer.isLastPlayer() == false || priorPlayer.getLastMove() != "call") {
+			System.out.println("Geht hier rein");
 			if (priorPlayer != null && priorPlayer.getLastMove().equals("fold")) { //in case the previous player's act was a fold
+				System.out.println("Geht hier rein 2");
 				if (this.activePlayers.get(this.activePlayers.indexOf(priorPlayer)).isLastPlayer() == true) { //if he was the last player to act & folded, exit this loop!
-					break;
+					this.activePlayers.remove(priorPlayer);
+					if(activePlayers.size()==1){//Is there only one player left? -> Then we have to determine a winner
+						winner=true;
+					}
+					break; //exit while loop
 				}
-				this.activePlayers.remove(priorPlayer); //remove the folded player
-			}
+					this.activePlayers.remove(priorPlayer);
+					if(activePlayers.size()==1){//Is there only one player left? -> Then we have to determine a winner
+						winner=true;
+						break;
+					}	
+				
+				}
+			
+			
 			actingPlayer.act(); //act-method determines the action of the currently acting Player: fold,call(check),raise
 			
 			//Now we determine the position of the next player to act within our activePlayerList
@@ -296,21 +322,54 @@ public class Poker implements iController {
 			priorPlayer = this.activePlayers.get(currentPlayerIndex); //priorPlayer is the player that last acted (either called,folded,raised,..)
 
 			actingPlayer = this.activePlayers.get(nextPlayerIndex); //actingPlayer is now the new player to act
+			
+			System.out.println(priorPlayer);
 
 		}
-		// test-Syso
-		System.out.println("nextRound!"); // all betting for this round has been completed, it is now on to the next round! 
-		
+
 		for(Seat seated: seatedPlayers){
 			seated.setBettedAmount(0); //reset betted Amount of every player to 0 for a fresh betting round
 		}
 		this.toCall=0; //reset Amount to be called to 0 for a fresh betting round!
-		
-		this.currentRound = eRound.values()[this.currentRound.ordinal()+1];//Next Round! PreFlop to Flop, Flop to River etc.
-		System.out.println(this.currentRound);
-		
-		dealHands(); //Deal the hands for the following round
 
+		if(this.winner==false){//We do not have a winner yet
+			
+			System.out.println("nextRound!"); // all betting for this round has been completed, it is now on to the next round
+			
+			this.currentRound = eRound.values()[this.currentRound.ordinal()+1];//Next Round! PreFlop to Flop, Flop to River etc.
+			//TODO: There is no "ending" yet; River should be the last round.
+			
+			System.out.println(this.currentRound);
+			
+			dealHands(); //Deal the hands for the following round
+		}
+		else if(this.winner==true){//We already have a winner
+			determineWinner();
+		}
+		//TODO: End the round with identifyHands() if there is more than 1 player after the last move has been made.
+	
+	}
+
+	
+	/**
+	 * determineWinner() is being called when a round ends, that being said there is either a winner or several "winners" if the game results in a split-pot-situation.
+	 * Further, there has to be a case for Allin-Scenarios in which a game can face several winners (if the smallest stack can not compete with the bigger stacks,
+	 * yet held the highest hand)
+	 */
+	public void determineWinner(){
+		if(this.activePlayers.size()==1){//There is exactly one player remaining, we have one winner
+			
+			Seat winner = this.activePlayers.get(0);
+			String winnerName = winner.getName();
+			System.out.println("The winner is : "+ winnerName);
+			System.out.println(winnerName +" has won a Pot of: "+ this.pot);
+			
+			winner.addChips(this.pot);
+			
+		}
+		//TODO: All the other cases in which we have several winners, splitpots etc..
+		this.winner=false; 
+		newRound();
 	}
 
 	public void removePlayer(Seat s) {

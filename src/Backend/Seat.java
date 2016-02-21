@@ -140,10 +140,13 @@ public class Seat {
 	}
 
 	private void fold() {
-		this.setLastMove("fold");
+		this.setLastMove("fold"); //Its important that in "Poker" we know what the last move of every player was
+		//BettingRound()-Method will fold the player if the last move was fold!
 		System.out.println("Player "+this.getName()+" folded his hand");
 		System.out.println(" ");
-		//betting-Round folds the player, as method needs further information from currently active playerobject
+		
+		
+
 	}
 
 	public String getName() {
@@ -169,8 +172,8 @@ public class Seat {
 		return chips;
 	}
 
-	public void setChips(int chips) {
-		this.chips = chips;
+	public void addChips(int amount) {
+		this.chips += amount;
 	}
 
 	@Override
@@ -210,6 +213,10 @@ public class Seat {
 		if(lastMove != null){
 			this.lastMove = lastMove;
 		}
+	}
+	
+	public void removeCards(){
+		this.cardsOnHand.clear();
 	}
 
 }
