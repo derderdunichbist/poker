@@ -82,70 +82,7 @@ public class Poker implements iController {
 		this.init();
 	}
 
-	public int getPot() {
-		return pot;
-	}
-
-	public int getToCall() {
-		return toCall;
-	}
-
-	public Blind getBigBlind() {
-		return bigBlind;
-	}
-
-	public Blind getSmallBlind() {
-		return smallBlind;
-	}
-
-	public ArrayList<Seat> getActivePlayers() {
-		return activePlayers;
-	}
-
-	public ArrayList<Card> getCarddeck() {
-		return carddeck;
-	}
-
-	public eRound getCurrentRound() {
-		return currentRound;
-	}
 	
-	public CommunityCards getComCards() {
-		return comCards;
-	}
-
-	public void setActivePlayers(ArrayList<Seat> activePlayers) {
-		this.activePlayers = activePlayers;
-	}
-
-	public void addToPot(int amount) {
-		this.pot += amount; // betting or call amount added to pot
-	}
-
-	public void setToCall(int toCall) {
-		this.toCall = toCall;
-	}
-
-	public void setSmallBlind(Blind smallBlind) {
-		this.smallBlind = smallBlind;
-	}
-
-	public void setBigBlind(Blind bigBlind) {
-		this.bigBlind = bigBlind;
-	}
-
-	public void setCarddeck(ArrayList<Card> carddeck) {
-		this.carddeck = carddeck;
-	}
-
-	public void setCurrentRound(eRound currentRound) {
-		this.currentRound = currentRound;
-	}
-
-	public void setComCards(CommunityCards comCards) {
-		this.comCards = comCards;
-	}
-
 	public void init() {
 
 		smallBlind = new Blind(smallBlindValue);
@@ -173,6 +110,10 @@ public class Poker implements iController {
 		Collections.shuffle(this.carddeck);
 	}
 	
+	/**
+	 * newRound() resets the Round (such as updating stacks, resetting variables etc) thus preparing a newRound. 
+	 * NewRound is called after a Round is finished and a new Round should begin. 
+	 */
 	@Override
 	public void newRound() {
 		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind next
@@ -241,13 +182,17 @@ public class Poker implements iController {
 			return index;
 		}
 	}
-
+	/**
+	 * identifyHands() is used if the winner has to be determined via showdown (either at roundend, an allin-situation or splitpot)
+	 */
 	private void identifyHands() {
-		// TODO Auto-generated method stub
-
+		System.out.println("IdentifyHands() is not yet implemented. Here its functionality usually kicks in.");
+		//TODO: implement identifyHands()
 	}
 
-	// removeDealtCard and burnCard with same implementation became removeCard
+	/**
+	 *  removeDealtCard and burnCard with same implementation became removeCard
+	 */
 	private void removeCard() {
 		carddeck.remove(0);
 	}
@@ -336,14 +281,15 @@ public class Poker implements iController {
 			
 			System.out.println("nextRound!"); // all betting for this round has been completed, it is now on to the next round
 			
-			this.currentRound = eRound.values()[this.currentRound.ordinal()+1];//Next Round! PreFlop to Flop, Flop to River etc.
+				this.currentRound = eRound.values()[this.currentRound.ordinal()+1];//Next Round! PreFlop to Flop, Flop to River etc.
+			
 			//TODO: There is no "ending" yet; River should be the last round.
 			
 			System.out.println(this.currentRound);
 			
 			dealHands(); //Deal the hands for the following round
 		}
-		else if(this.winner==true){//We already have a winner
+		else if(this.winner==true || this.currentRound == eRound.ROUNDEND){//We already have a winner
 			determineWinner();
 		}
 		//TODO: End the round with identifyHands() if there is more than 1 player after the last move has been made.
@@ -367,6 +313,10 @@ public class Poker implements iController {
 			winner.addChips(this.pot);
 			
 		}
+		else if(this.activePlayers.size()>1){
+			identifyHands();
+		}
+			
 		//TODO: All the other cases in which we have several winners, splitpots etc..
 		this.winner=false; 
 		newRound();
@@ -453,6 +403,70 @@ public class Poker implements iController {
 
 		// Syso-Test Are players added properly?
 		System.out.println("currently Seated players are: " + seatedPlayers.toString());
+	}
+
+	public int getPot() {
+		return pot;
+	}
+
+	public int getToCall() {
+		return toCall;
+	}
+
+	public Blind getBigBlind() {
+		return bigBlind;
+	}
+
+	public Blind getSmallBlind() {
+		return smallBlind;
+	}
+
+	public ArrayList<Seat> getActivePlayers() {
+		return activePlayers;
+	}
+
+	public ArrayList<Card> getCarddeck() {
+		return carddeck;
+	}
+
+	public eRound getCurrentRound() {
+		return currentRound;
+	}
+	
+	public CommunityCards getComCards() {
+		return comCards;
+	}
+
+	public void setActivePlayers(ArrayList<Seat> activePlayers) {
+		this.activePlayers = activePlayers;
+	}
+
+	public void addToPot(int amount) {
+		this.pot += amount; // betting or call amount added to pot
+	}
+
+	public void setToCall(int toCall) {
+		this.toCall = toCall;
+	}
+
+	public void setSmallBlind(Blind smallBlind) {
+		this.smallBlind = smallBlind;
+	}
+
+	public void setBigBlind(Blind bigBlind) {
+		this.bigBlind = bigBlind;
+	}
+
+	public void setCarddeck(ArrayList<Card> carddeck) {
+		this.carddeck = carddeck;
+	}
+
+	public void setCurrentRound(eRound currentRound) {
+		this.currentRound = currentRound;
+	}
+
+	public void setComCards(CommunityCards comCards) {
+		this.comCards = comCards;
 	}
 
 }
