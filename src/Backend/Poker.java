@@ -285,6 +285,12 @@ public class Poker implements iController {
 			System.out.println("nextRound!"); // all betting for this round has been completed, it is now on to the next round
 			
 				this.currentRound = eRound.values()[this.currentRound.ordinal()+1];//Next Round! PreFlop to Flop, Flop to River etc.
+				
+				for(Seat s: this.activePlayers){//Reset who was last Player
+					s.setLastPlayer(false);
+				}
+				Seat newLast = this.activePlayers.get(this.activePlayers.size()-1);
+				newLast.setLastPlayer(true);//as a new Round starts, the last Player needs to be the Dealer. (important if nobody raises!)
 			
 			//TODO: There is no "ending" yet; River should be the last round.
 			

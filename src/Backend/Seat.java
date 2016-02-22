@@ -11,6 +11,10 @@ public class Seat {
 	private Blind blind;
 	private int chips = 2500;
 	
+	public void setLastPlayer(boolean isLastPlayer) {
+		this.isLastPlayer = isLastPlayer;
+	}
+
 	/**
 	 * amount of bets in $ (in current round!); is 0 on roundstart
 	 */
@@ -87,7 +91,12 @@ public class Seat {
 		
 			this.bettedAmount += amount;
 			this.setLastMove("call");
+			if(poker.getToCall()==0){
+				System.out.println("Player "+this.getName()+" checked his Hand!");
+			}
+			else{
 			System.out.println("Player "+this.getName()+" called!");
+			}
 			System.out.println(" ");
 			
 			this.chips -= amount;
