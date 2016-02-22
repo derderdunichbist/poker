@@ -90,6 +90,9 @@ public class Poker implements iController {
 		this.initSeats();
 	}
 
+	/**
+	 * initialize the Seats for the players. Players can either be active or inactive on a seat, however every seat is used at all times or removed.
+	 */
 	private void initSeats() {
 		for(int i = 0; i < MAX_AMOUNT_OF_PLAYERS; i++) {
 			this.seatedPlayers.add(new Seat(this));
@@ -315,6 +318,8 @@ public class Poker implements iController {
 		}
 		else if(this.activePlayers.size()>1){
 			identifyHands();
+			//TODO: Note that at the moment, the list does not get reset if this is being called. Just as in the IF block above, this has still
+			//TODO: to be implemented.
 		}
 			
 		//TODO: All the other cases in which we have several winners, splitpots etc..
@@ -330,7 +335,7 @@ public class Poker implements iController {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * dealHands(): Deals hands for each respective Round. E.g. 2 hands per player in Pre-Flop-state, 3 communityCards for the Flop...
 	 */
 	@Override
 	public void dealHands() {
