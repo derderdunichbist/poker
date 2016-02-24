@@ -128,6 +128,8 @@ public class Poker implements iController {
 		for(Seat s: this.seatedPlayers){ //For a new round, nobody should have cards! Remove all cards out of players' hands.
 			s.removeCards();
 			s.setBettedAmount(0); //For a new Round, nobody has betted yet!
+			s.setEntireBettedAmount(0); //For a new Round, the "sum of all betted-Amounts" per round is also 0
+			s.setAllin(false);
 		}
 			
 		
@@ -239,9 +241,8 @@ public class Poker implements iController {
 
 		//A loop that continues until the last player to respond to a raise will call or fold
 		while (priorPlayer == null || priorPlayer.isLastPlayer() == false || priorPlayer.getLastMove() != "call") {
-			System.out.println("Geht hier rein");
+			
 			if (priorPlayer != null && priorPlayer.getLastMove().equals("fold")) { //in case the previous player's act was a fold
-				System.out.println("Geht hier rein 2");
 				if (this.activePlayers.get(this.activePlayers.indexOf(priorPlayer)).isLastPlayer() == true) { //if he was the last player to act & folded, exit this loop!
 					this.activePlayers.remove(priorPlayer);
 					if(activePlayers.size()==1){//Is there only one player left? -> Then we have to determine a winner
@@ -254,12 +255,27 @@ public class Poker implements iController {
 						winner=true;
 						break;
 					}	
-				
 				}
 			
-			
+			int counter=0;//How many players are allin? 
+			for(Seat s: this.activePlayers){//Is everyone allin, except for one player? If so, he does not continue betting alone!
+				if(s.isAllin()==false){
+					counter++;
+				}
+			}
+			if(counter==0){//If everyone is allin, skip the while-loop. This is important because we enter this while-loop
+				//Every fresh round (Preflop,Flop,Turn and River) and need a way to skip it. 
+				break;
+			}
+			else if(counter==1 && actingPlayer.getBettedAmount()>=this.toCall){//There is only one player left that is NOT allin! 
+				actingPlayer.setAllin(true);//To skip all his betting, we set him into "allin-state" 
+				//note: this does not commit the rest of his stack, but is simply a way for us to skip his bettings
+				break;
+			}
+				
+			if(actingPlayer.isAllin()!=true){
 			actingPlayer.act(); //act-method determines the action of the currently acting Player: fold,call(check),raise
-			
+			}
 			//Now we determine the position of the next player to act within our activePlayerList
 			int currentPlayerIndex = (this.activePlayers.indexOf(actingPlayer));
 			if (currentPlayerIndex == this.activePlayers.size() - 1) {
@@ -300,6 +316,9 @@ public class Poker implements iController {
 		}
 		else if(this.winner==true || this.currentRound == eRound.ROUNDEND){//We already have a winner
 			determineWinner();
+		}
+		else{
+			System.out.println("Jetzt gibts SHOWDOWN! identify hands noch nicht implementiert..");
 		}
 		//TODO: End the round with identifyHands() if there is more than 1 player after the last move has been made.
 	

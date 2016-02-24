@@ -10,10 +10,16 @@ public class Seat {
 	private static int amountOfPlayers = 0;
 	private Blind blind;
 	private int chips = 2500;
-	
-	public void setLastPlayer(boolean isLastPlayer) {
-		this.isLastPlayer = isLastPlayer;
-	}
+	/**
+	 * isAllin is true if a player is allin and thus can not bet any further. He is skipped for any further bets but maintains
+	 * in the betting round until the end.
+	 */
+	private boolean isAllin = false;
+	/**
+	 * entireBettedAmount is the entirety of a players betted amount and thus the sum of all bettedAmounts over all rounds. 
+	 * entireBettedAmount lets us determine the maximum winning-amount for the player in determineWinner() later on.
+	 */
+	private int entireBettedAmount = 0;
 
 	/**
 	 * amount of bets in $ (in current round!); is 0 on roundstart
@@ -49,14 +55,17 @@ public class Seat {
 	 * act() determines whether a player raised,called(checked) or folded
 	 */
 	public void act(){
+		System.out.println("Current pot: " + poker.getPot());
 		System.out.println("Player "+this.getName()+" it is your turn! "+(poker.getToCall()-(this.bettedAmount))+" to call!");
+		System.out.println("Current chips of " + this.playerName + " : " + this.chips);
+		
 		//TODO: This is only temporary. As well as the checking/folding with 0!
 		System.out.println("enter your bet or '0' to check/fold :");
 		
 		Scanner reader = new Scanner(System.in); 
 		int n = reader.nextInt();
 		
-		if(n > poker.getToCall()-this.bettedAmount){
+		if(n > poker.getToCall()-this.bettedAmount || this.chips-n==0){//Player is either raising (pays more than needed to call) or allinning
 			bet(n);
 		}
 		else if(n == poker.getToCall()-this.bettedAmount){
@@ -69,8 +78,6 @@ public class Seat {
 		else{
 			fold();
 		}
-		
-		System.out.println("Current pot: " + poker.getPot());
 	}
 	public int getBettedAmount() {
 		return bettedAmount;
@@ -88,8 +95,9 @@ public class Seat {
 		if (amount > chips) {
 			throw new RuntimeException("Too high amount to call");
 		}
-		
+			this.chips -= amount;
 			this.bettedAmount += amount;
+			this.entireBettedAmount += amount; //The only difference to bettedAmount is that this is not being reset to 0 with every roundstart
 			this.setLastMove("call");
 			if(poker.getToCall()==0){
 				System.out.println("Player "+this.getName()+" checked his Hand!");
@@ -99,7 +107,7 @@ public class Seat {
 			}
 			System.out.println(" ");
 			
-			this.chips -= amount;
+			
 			
 			System.out.println("Current chips " + this.playerName + ": " + this.chips);
 			
@@ -116,9 +124,18 @@ public class Seat {
 				throw new RuntimeException("Too high amount to bet");
 			}
 			this.bettedAmount += amount;
+			this.entireBettedAmount += amount; //The only difference to bettedAmount is that this is not being reset to 0 with every roundstart
 			poker.setToCall(bettedAmount);
 			this.setLastMove("bet");
-			System.out.println("Player "+this.getName()+" raised to "+amount);
+			
+			if(this.chips-amount==0){//The player went allin
+				System.out.println("Player "+this.getName()+" went allin with "+amount);
+				this.isAllin=true;
+			}
+			else{ //The player raised
+				System.out.println("Player "+this.getName()+" raised to "+amount);
+			}
+			
 			System.out.println(" ");
 			
 			//Get activePlayersList, so we can determine the new lastPlayerToAct 
@@ -144,7 +161,8 @@ public class Seat {
 			this.chips -= amount;
 			poker.addToPot(amount);
 			
-			System.out.println("Current chips " + this.playerName + ": " + this.chips);
+			System.out.println("Current chips of "+this.playerName+ "after his bet: " + this.chips);
+			System.out.println();
 			
 	}
 
@@ -158,6 +176,9 @@ public class Seat {
 
 	}
 
+	public void setLastPlayer(boolean isLastPlayer) {
+		this.isLastPlayer = isLastPlayer;
+	}
 	public String getName() {
 		return playerName;
 	}
@@ -226,6 +247,22 @@ public class Seat {
 	
 	public void removeCards(){
 		this.cardsOnHand.clear();
+	}
+
+	public int getEntireBettedAmount() {
+		return entireBettedAmount;
+	}
+
+	public void setEntireBettedAmount(int entireBettedAmount) {
+		this.entireBettedAmount = entireBettedAmount;
+	}
+
+	public boolean isAllin() {
+		return isAllin;
+	}
+
+	public void setAllin(boolean isAllin) {
+		this.isAllin = isAllin;
 	}
 
 }
