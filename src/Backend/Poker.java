@@ -74,8 +74,8 @@ public class Poker implements iController {
 	private eRound currentRound;
 
 	public Poker() {
-		this.seatedPlayers = new ArrayList<Seat>(MAX_AMOUNT_OF_PLAYERS);
-		this.activePlayers = new ArrayList<Seat>(MAX_AMOUNT_OF_PLAYERS);
+		this.seatedPlayers = new ArrayList<Seat>();
+		this.activePlayers = new ArrayList<Seat>();
 		this.setCarddeck(new ArrayList<Card>(AMOUNT_OF_CARDS));
 		this.currentRound = eRound.INITIALIZE;
 		this.comCards = new CommunityCards();
@@ -117,7 +117,6 @@ public class Poker implements iController {
 	 * newRound() resets the Round (such as updating stacks, resetting variables etc) thus preparing a newRound. 
 	 * NewRound is called after a Round is finished and a new Round should begin. 
 	 */
-	@Override
 	public void newRound() {
 		int newSmallBlind = 0; // Saves index of the seat to receive smallBlind next
 		int newBigBlind = 0;	// Saves index of the seat to receive bigBlind next	
@@ -352,17 +351,77 @@ public class Poker implements iController {
 		newRound();
 	}
 
-	public void removePlayer(Seat s) {
-		this.seatedPlayers.remove(s);
+	/**
+	 * @deprecated
+	 * @param seat The seat to be removed; only 
+	 */
+	private void removePlayer(Seat seat) {
+		this.seatedPlayers.remove(seat);
+//		seat.reset();
 
 		int amountOfPlayers = Seat.getAmountOfPlayers() - 1;
 		Seat.setAmountOfPlayers(amountOfPlayers);
+		
+		System.out.println("currently Seated players are: " + seatedPlayers.toString());
+	}
+
+	
+	/**
+	 * @deprecated
+	 */
+	@Override
+	public void removePlayer(int seatNumber) {
+		Seat seatToRemove = null;
+		
+		if(seatNumber < 1 || seatNumber > Poker.MAX_AMOUNT_OF_PLAYERS) {
+			throw new RuntimeException("Invalid seat number!");
+		}
+		
+		for(Seat seat : this.seatedPlayers) {
+			if(seat.getSeatNumber() == seatNumber) {
+				if(seat.getName() != null) {
+					seatToRemove = seat;
+					break;
+				}
+			}
+		}
+		
+		if(seatToRemove != null) {
+			this.removePlayer(seatToRemove);
+		} else {
+			System.out.println("No player placed on seat " + seatNumber);
+		}
+		
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	@Override
+	public void removePlayer(String playerName) {
+		Seat seatToRemove = null;
+		
+		if(playerName == null) {
+			throw new RuntimeException ("Illegal Argument NULL for Player Name!");
+		}
+		
+		for(Seat seat : this.seatedPlayers) {
+			if(seat.getName().equals(playerName)) {
+				seatToRemove = seat;
+				break;
+			}
+		}
+		
+		if(seatToRemove != null) {
+			this.removePlayer(seatToRemove);
+		} else {
+			System.out.println("No player with name " + playerName + " found");
+		}
 	}
 
 	/**
 	 * dealHands(): Deals hands for each respective Round. E.g. 2 hands per player in Pre-Flop-state, 3 communityCards for the Flop...
 	 */
-	@Override
 	public void dealHands() {
 		if(this.currentRound == eRound.ROUNDEND) {
 			identifyHands();
@@ -433,6 +492,9 @@ public class Poker implements iController {
 
 		// Syso-Test Are players added properly?
 		System.out.println("currently Seated players are: " + seatedPlayers.toString());
+		
+		this.newRound();
+		
 	}
 
 	public int getPot() {

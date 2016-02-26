@@ -16,9 +16,11 @@ public class runPoker {
 		poker.addPlayer("Berndsaftgagrotzfotz");
 //		poker.addPlayer("AberIhrHabtMirNicht");
 		
-		poker.startGame();
+		poker.removePlayer(3);
 		
-		poker.newRound();
+		poker.addPlayer("testPlayer");
+		
+		poker.startGame();
 
 	}
 

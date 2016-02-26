@@ -1,24 +1,7 @@
 package Interfaces;
 
 public interface iController {
-
-	/**
-	 * Deals all respective cards available in the game: Holdcards and communitycards 
-	 */
-	public void dealHands();
 	
-	/**
-	 * Adds a player with a specified name to the next empty seat
-	 * @param name The players name
-	 */
-	public void addPlayer(String name);
-
-	/**
-	 * Starts a new round; A new round begins after a complete hand is finished.<br>
-	 * Added method also for testing purposes etc. Consider refactoring
-	 */
-	public void newRound();
-
 	/**
 	 * Starts the game by
 	 * <ul>
@@ -26,5 +9,23 @@ public interface iController {
 	 * <li>invoking {@link #newRound()}
 	 */
 	public void startGame();
+	
+	/**
+	 * Adds a player with a specified name to the next empty seat
+	 * @param name The players name
+	 */
+	public void addPlayer(String name);
+	
+	/**
+	 * Removes a player with a specified seat number
+	 * @param seatNumber The seat number to remove the player from
+	 */
+	public void removePlayer(int seatNumber);
+	
+	/**
+	 * Removes a player with a specified name
+	 * @param playerName The name of the player who will be removed from the game
+	 */
+	public void removePlayer(String playerName);
 
 }
