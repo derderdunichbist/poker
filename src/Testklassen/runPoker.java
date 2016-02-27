@@ -18,7 +18,7 @@ public class runPoker {
 		
 		poker.removePlayer(3);
 		
-		poker.addPlayer("testPlayer");
+	//	poker.addPlayer("testPlayer");
 		
 		poker.startGame();
 

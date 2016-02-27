@@ -396,6 +396,7 @@ public class Poker implements iController {
 	
 	/**
 	 * @deprecated
+	 * see addPlayer for a description of the problem. 
 	 */
 	@Override
 	public void removePlayer(String playerName) {
@@ -455,6 +456,12 @@ public class Poker implements iController {
 		bettingRound();
 	}
 
+	/**
+	 * @deprecated
+	 * Upcoming Changes: As discussed, a players name is never null or an empty string (not allowed), but a player "is"  
+	 * a Seat-Object. That being said, a new player is an additional Seat-Object for our seatedPlayers<>, and analogous functions the removal
+	 * of a player from the table.  
+	 */
 	@Override
 	public void addPlayer(String name) {
 		boolean playerAdded = false;
