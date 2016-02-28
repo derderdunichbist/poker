@@ -21,11 +21,5 @@ public interface iController {
 	 * @param seatNumber The seat number to remove the player from
 	 */
 	public void removePlayer(int seatNumber);
-	
-	/**
-	 * Removes a player with a specified name
-	 * @param playerName The name of the player who will be removed from the game
-	 */
-	public void removePlayer(String playerName);
 
 }

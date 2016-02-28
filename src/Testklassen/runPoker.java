@@ -16,7 +16,9 @@ public class runPoker {
 		poker.addPlayer("Berndsaftgagrotzfotz");
 //		poker.addPlayer("AberIhrHabtMirNicht");
 		
-		poker.removePlayer(3);
+		poker.removePlayer(6);
+		
+		poker.addPlayer("testAdd");
 		
 	//	poker.addPlayer("testPlayer");
 		

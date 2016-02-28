@@ -34,11 +34,13 @@ public class Seat {
 		return isLastPlayer;
 	}
 
-	public Seat(Poker poker) {
+	public Seat(Poker poker, String name, int seatNumber) {
+		this.setName(name);
+		this.poker = poker;
 		Seat.amountOfPlayers++;
 		this.cardsOnHand = new ArrayList<Card>(2);
-		this.setSeatNumber(amountOfPlayers);
-		this.poker = poker;
+		this.setSeatNumber(seatNumber);
+//		this.setSeatNumber(amountOfPlayers);
 	}
 
 	public static int getAmountOfPlayers() {
@@ -61,23 +63,29 @@ public class Seat {
 		
 		//TODO: This is only temporary. As well as the checking/folding with 0!
 		System.out.println("enter your bet or '0' to check/fold :");
-		
 		Scanner reader = new Scanner(System.in); 
-		int n = reader.nextInt();
+		try {
+			int n = reader.nextInt();
+			
+			if(n > poker.getToCall()-this.bettedAmount || this.chips-n==0){//Player is either raising (pays more than needed to call) or allinning
+				bet(n);
+			}
+			else if(n == poker.getToCall()-this.bettedAmount){
+				call(n);
+			}
+			else if(n < poker.getToCall()-this.bettedAmount && n > 0)
+			{
+				throw new RuntimeException("Not a valid bet! Bet at least enough to call or fold!");
+			}
+			else{
+				fold();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			reader.close();
+		}
 		
-		if(n > poker.getToCall()-this.bettedAmount || this.chips-n==0){//Player is either raising (pays more than needed to call) or allinning
-			bet(n);
-		}
-		else if(n == poker.getToCall()-this.bettedAmount){
-			call(n);
-		}
-		else if(n < poker.getToCall()-this.bettedAmount && n > 0)
-		{
-			throw new RuntimeException("Not a valid bet! Bet at least enough to call or fold!");
-		}
-		else{
-			fold();
-		}
 	}
 	public int getBettedAmount() {
 		return bettedAmount;

@@ -84,19 +84,8 @@ public class Poker implements iController {
 
 	
 	public void init() {
-
 		smallBlind = new Blind(smallBlindValue);
 		bigBlind = new Blind(smallBlindValue);
-		this.initSeats();
-	}
-
-	/**
-	 * initialize the Seats for the players. Players can either be active or inactive on a seat, however every seat is used at all times or removed.
-	 */
-	private void initSeats() {
-		for(int i = 0; i < MAX_AMOUNT_OF_PLAYERS; i++) {
-			this.seatedPlayers.add(new Seat(this));
-		}
 	}
 
 	public void resetDeck() {
@@ -357,7 +346,6 @@ public class Poker implements iController {
 	 */
 	private void removePlayer(Seat seat) {
 		this.seatedPlayers.remove(seat);
-//		seat.reset();
 
 		int amountOfPlayers = Seat.getAmountOfPlayers() - 1;
 		Seat.setAmountOfPlayers(amountOfPlayers);
@@ -392,32 +380,6 @@ public class Poker implements iController {
 			System.out.println("No player placed on seat " + seatNumber);
 		}
 		
-	}
-	
-	/**
-	 * @deprecated
-	 * see addPlayer for a description of the problem. 
-	 */
-	@Override
-	public void removePlayer(String playerName) {
-		Seat seatToRemove = null;
-		
-		if(playerName == null) {
-			throw new RuntimeException ("Illegal Argument NULL for Player Name!");
-		}
-		
-		for(Seat seat : this.seatedPlayers) {
-			if(seat.getName().equals(playerName)) {
-				seatToRemove = seat;
-				break;
-			}
-		}
-		
-		if(seatToRemove != null) {
-			this.removePlayer(seatToRemove);
-		} else {
-			System.out.println("No player with name " + playerName + " found");
-		}
 	}
 
 	/**
@@ -457,32 +419,36 @@ public class Poker implements iController {
 	}
 
 	/**
-	 * @deprecated
-	 * Upcoming Changes: As discussed, a players name is never null or an empty string (not allowed), but a player "is"  
-	 * a Seat-Object. That being said, a new player is an additional Seat-Object for our seatedPlayers<>, and analogous functions the removal
-	 * of a player from the table.  
+	 * 
 	 */
 	@Override
 	public void addPlayer(String name) {
-		boolean playerAdded = false;
-		if(name != null && name.length() >= 2) {
-			for(int i = 0; i < seatedPlayers.size(); i++) {
-				String playerName = seatedPlayers.get(i).getName();
-				if (playerName == null || playerName.isEmpty()) {
-					seatedPlayers.get(i).setName(name);
-					System.out.println("Placetaking: " + seatedPlayers.get(i).toString());
-					playerAdded = true;
-					break;
-				}
-			}
-			if(playerAdded == false) { //Indicator that max amount of players has been reached, because new player could not be added
-				throw new RuntimeException("Max amount of players reached");
-			}
+		if (seatedPlayers.size() == Poker.MAX_AMOUNT_OF_PLAYERS) {
+			throw new RuntimeException("Max amount of players reached");
 		}
-		else {
-			throw new RuntimeException("Name is not allowed to be null or have less than 2 symbols");
+		if (name != null && name.length() >= 2) {
+			if(seatedPlayers.isEmpty()) {
+				Seat seat = new Seat(this, name, 1);
+				this.seatedPlayers.add(seat.getSeatNumber() - 1, seat);
+			} else {
+				int lowestIndex = 0;
+				for (Seat s : this.seatedPlayers) {
+					if (s.getSeatNumber() != (lowestIndex + 1)) { // Empty seat found between 2 or more players
+						
+						break;
+					} else {
+						lowestIndex = s.getSeatNumber();
+					}
+				}
+				Seat seat = new Seat(this, name, lowestIndex + 1);
+				this.seatedPlayers.add(seat.getSeatNumber() - 1, seat);
+			}
+		} else {
+			throw new RuntimeException(
+					"Name is not allowed to be null or have less than 2 symbols");
 		}
 	}
+
 
 	@Override
 	public void startGame() {
