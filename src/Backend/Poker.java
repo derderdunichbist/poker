@@ -341,7 +341,6 @@ public class Poker implements iController {
 	}
 
 	/**
-	 * @deprecated
 	 * @param seat The seat to be removed; only 
 	 */
 	private void removePlayer(Seat seat) {
@@ -353,10 +352,6 @@ public class Poker implements iController {
 		System.out.println("currently Seated players are: " + seatedPlayers.toString());
 	}
 
-	
-	/**
-	 * @deprecated
-	 */
 	@Override
 	public void removePlayer(int seatNumber) {
 		Seat seatToRemove = null;
@@ -532,6 +527,11 @@ public class Poker implements iController {
 
 	public void setComCards(CommunityCards comCards) {
 		this.comCards = comCards;
+	}
+
+
+	public ArrayList<Seat> getSeatedPlayers() {
+		return this.seatedPlayers;
 	}
 
 }
