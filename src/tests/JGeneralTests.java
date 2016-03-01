@@ -1,5 +1,6 @@
 package tests;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 
@@ -17,8 +18,8 @@ import Backend.Seat;
  * @author Kosta
  *
  */
-public class Tests {
-	Poker poker;
+public class JGeneralTests {
+	private Poker poker;
 
 	/**
 	 * @throws java.lang.Exception
@@ -92,7 +93,7 @@ public class Tests {
 //	 */
 //	@Test
 //	public void testAddPlayer() {
-//		fail("Not yet implemented");
+//		poker.addPlayer("BerndDeGagaGigi");
 //	}
 //	
 //	/**
