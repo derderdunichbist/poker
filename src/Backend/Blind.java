@@ -31,6 +31,10 @@ public class Blind {
 	public int getValue() {
 		return value;
 	}
+	
+	public static void setAmountOfBlinds(int amountOfBlinds){
+		Blind.amountOfBlinds = amountOfBlinds;
+	}
 
 	// leave this public for now, in case of dynamically changing value later on
 	// TODO Big Blind implementation

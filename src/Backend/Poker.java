@@ -72,20 +72,26 @@ public class Poker implements iController {
 	 * The current round state
 	 */
 	private eRound currentRound;
+	
+	/**
+	 * The game's hand identifier
+	 */
+	private HandIdentifier handIdentifier;
 
 	public Poker() {
-		this.seatedPlayers = new ArrayList<Seat>();
-		this.activePlayers = new ArrayList<Seat>();
-		this.setCarddeck(new ArrayList<Card>(AMOUNT_OF_CARDS));
-		this.currentRound = eRound.INITIALIZE;
-		this.comCards = new CommunityCards();
 		this.init();
 	}
 
 	
 	public void init() {
-		smallBlind = new Blind(smallBlindValue);
-		bigBlind = new Blind(smallBlindValue);
+		this.seatedPlayers = new ArrayList<Seat>();
+		this.activePlayers = new ArrayList<Seat>();
+		this.currentRound = eRound.INITIALIZE;
+		this.comCards = new CommunityCards();
+		this.setCarddeck(new ArrayList<Card>(AMOUNT_OF_CARDS));
+		this.smallBlind = new Blind(smallBlindValue);
+		this.bigBlind = new Blind(smallBlindValue);
+		this.handIdentifier = new HandIdentifier(this);
 	}
 
 	public void resetDeck() {
@@ -93,8 +99,8 @@ public class Poker implements iController {
 			this.carddeck.clear();
 		}
 
-		for (eValue value : eValue.values()) {
-			for (eColour color : eColour.values()) {
+		for (eColor value : eColor.values()) {
+			for (eValue color : eValue.values()) {
 				Card c = new Card(color, value);
 				this.carddeck.add(c);
 			}
@@ -167,7 +173,7 @@ public class Poker implements iController {
 		dealHands(); //Call dealHands to start dealing hands to each player!
 	}
 	
-	private int getNextIndex(int index, ArrayList<Seat> seats) {
+	public int getNextIndex(int index, ArrayList<Seat> seats) {
 		if (index == seats.size() - 1) {
 			return 0;
 		} else {
@@ -180,6 +186,7 @@ public class Poker implements iController {
 	 */
 	private void identifyHands() {
 		System.out.println("IdentifyHands() is not yet implemented. Here its functionality usually kicks in.");
+//		Seat winner = this.handIdentifier.identifyWinner();
 		//TODO: implement identifyHands()
 	}
 

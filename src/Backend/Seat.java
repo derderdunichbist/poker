@@ -10,6 +10,7 @@ public class Seat {
 	private static int amountOfPlayers = 0;
 	private Blind blind;
 	private int chips = 2500;
+	private eHandCategory handCategory;
 	/**
 	 * isAllin is true if a player is allin and thus can not bet any further. He is skipped for any further bets but maintains
 	 * in the betting round until the end.
@@ -231,7 +232,7 @@ public class Seat {
 		return cardsOnHand;
 	}
 
-	private void setCards(ArrayList<Card> cards) {
+	public void setCards(ArrayList<Card> cards) {
 		this.cardsOnHand = cards;
 	}
 	
@@ -271,6 +272,14 @@ public class Seat {
 
 	public void setAllin(boolean isAllin) {
 		this.isAllin = isAllin;
+	}
+
+	public eHandCategory getHandCategory() {
+		return handCategory;
+	}
+
+	public void setHandCategory(eHandCategory handCategory) {
+		this.handCategory = handCategory;
 	}
 
 }

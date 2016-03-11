@@ -3,16 +3,16 @@ package Backend;
 public class Card {
 
 	private boolean isHidden;
+	private eColor color;
 	private eValue value;
-	private eColour color;
 	private String name; // Contains both Color- and Value of card
 
-	public Card(eColour color, eValue value) { // set Cards Value and Color when
+	public Card(eValue value, eColor color) { // set Cards Value and Color when
 												// constructing a card
-		if (color != null && value != null) {
-			this.setColor(color);
+		if (value != null && color != null) {
 			this.setValue(value);
-			this.setName(color, value);
+			this.setColor(color);
+			this.setName(value, color);
 		} else {
 			throw new NullPointerException("Color and Value must not be null!");
 		}
@@ -26,25 +26,25 @@ public class Card {
 		this.isHidden = isHidden;
 	}
 
-	public eColour getColor() {
-		return color;
+	public eValue getValue() {
+		return value;
 	}
 
-	private void setColor(eColour color) {
-		if (color != null) {
-			this.color = color;
+	public void setValue(eValue value) {
+		if (value != null) {
+			this.value = value;
 		} else {
 			throw new NullPointerException("Please set a proper color!");
 		}
 	}
 
-	public eValue getValue() {
-		return value;
+	public eColor getColor() {
+		return color;
 	}
 
-	private void setValue(eValue value) {
-		if (value != null) {
-			this.value = value;
+	public void setColor(eColor color) {
+		if (color != null) {
+			this.color = color;
 		} else {
 			throw new NullPointerException("Please set a proper value!");
 		}
@@ -54,14 +54,14 @@ public class Card {
 		return name;
 	}
 
-	private void setName(eColour color, eValue value) {
+	private void setName(eValue color, eColor value) {
 		// Example: "ACE DIAMONDS"
 		this.name = color.toString() + " " + value.toString();
 	}
 
 	@Override
 	public String toString() {
-		return color.toString() + " " + value.toString();
+		return value.toString() + " " + color.toString();
 	}
 
 }
